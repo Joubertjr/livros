@@ -1,0 +1,24 @@
+Hash dos Artefatos Canônicos do Contrato
+================================================
+
+Data/Hora: 2026-01-18T19:58:51.571572
+
+Artefatos Canônicos:
+1. CHECKLIST_Z_GATES.md (constituição do sistema)
+2. gates_manifest.json (contrato executável)
+
+Hashes SHA256:
+--------------
+CHECKLIST_Z_GATES.md: 1315d68468150dba3681fc1cdb7ee400df35e7d4411c469023f5724925797c7b
+gates_manifest.json:  0bb402b8b82a5d21f8ee7d81a8a659f7d5ef1e4fa351efbfd2debf7e41cc8b8e
+Hash Combinado:        7b90f180e6f503a56b12ea660e217645d5002efff49bab0aa97efc5d2e125701
+
+Verificação:
+-----------
+Para verificar integridade, execute:
+  sha256sum CHECKLIST_Z_GATES.md gates_manifest.json
+
+Os hashes devem corresponder aos valores acima.
+
+Nota: Este arquivo é gerado automaticamente.
+Qualquer alteração nos artefatos canônicos resultará em hash diferente.

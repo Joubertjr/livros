@@ -1,0 +1,159 @@
+{
+  "version": "1.0",
+  "suite_status": "GREEN",
+  "z0_mode": "XFAIL_BY_DESIGN",
+  "z5_regeneration_unpack_fix": "APPLIED",
+  "gates": [
+    {
+      "gate_id": "Z0",
+      "name": "Testes RED (falhas esperadas)",
+      "test_files": [
+        "src/tests/integration/test_gate_z0_impossible_summary.py"
+      ],
+      "proof_command": "pytest src/tests/integration/test_gate_z0_impossible_summary.py -q",
+      "expected_artifacts": [
+        "src/tests/integration/test_gate_z0_impossible_summary.py"
+      ]
+    },
+    {
+      "gate_id": "Z1",
+      "name": "Quality Gate lendo coverage_report.json",
+      "test_files": [
+        "src/tests/unit/test_quality_gate_from_coverage_report.py"
+      ],
+      "fixtures": [
+        "src/tests/fixtures/coverage_report_100.json",
+        "src/tests/fixtures/coverage_report_99.json"
+      ],
+      "proof_command": "pytest src/tests/unit/test_quality_gate_from_coverage_report.py -q",
+      "expected_artifacts": [
+        "src/quality_gate.py",
+        "src/tests/unit/test_quality_gate_from_coverage_report.py",
+        "src/tests/fixtures/coverage_report_100.json",
+        "src/tests/fixtures/coverage_report_99.json"
+      ]
+    },
+    {
+      "gate_id": "Z2",
+      "name": "Auditoria determinística + anti-fraude",
+      "test_files": [
+        "src/tests/unit/test_recall_auditor.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_recall_auditor.py -q",
+      "expected_artifacts": [
+        "src/recall_auditor.py",
+        "src/tests/unit/test_recall_auditor.py"
+      ]
+    },
+    {
+      "gate_id": "Z3",
+      "name": "IDs imutáveis (hash + normalização)",
+      "test_files": [
+        "src/tests/unit/test_item_id_immutability.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_item_id_immutability.py -q",
+      "expected_artifacts": [
+        "src/recall_set.py",
+        "src/tests/unit/test_item_id_immutability.py"
+      ]
+    },
+    {
+      "gate_id": "Z4",
+      "name": "Recall Set com hard cap 12",
+      "test_files": [
+        "src/tests/unit/test_recall_set_hard_cap.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_recall_set_hard_cap.py -q",
+      "expected_artifacts": [
+        "src/recall_set.py",
+        "src/tests/unit/test_recall_set_hard_cap.py"
+      ]
+    },
+    {
+      "gate_id": "Z5",
+      "name": "Pipeline no chapter_summarizer (com regeneração)",
+      "test_files": [
+        "src/tests/integration/test_pipeline_regeneration.py",
+        "src/tests/integration/test_gate_z5_1_regeneration_antifraud.py"
+      ],
+      "proof_command": "pytest src/tests/integration/test_pipeline_regeneration.py src/tests/integration/test_gate_z5_1_regeneration_antifraud.py -q",
+      "expected_artifacts": [
+        "src/chapter_summarizer.py",
+        "src/tests/integration/test_pipeline_regeneration.py",
+        "src/tests/integration/test_gate_z5_1_regeneration_antifraud.py"
+      ]
+    },
+    {
+      "gate_id": "Z5.2",
+      "name": "Schema coverage_report (travado)",
+      "test_files": [
+        "src/tests/unit/test_coverage_report_schema.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_coverage_report_schema.py -q",
+      "expected_artifacts": [
+        "src/schemas/coverage_report.py",
+        "src/tests/unit/test_coverage_report_schema.py"
+      ]
+    },
+    {
+      "gate_id": "Z6",
+      "name": "Evidence Generator",
+      "test_files": [
+        "src/tests/unit/test_evidence_generator_gate_z6.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_evidence_generator_gate_z6.py -q",
+      "expected_artifacts": [
+        "src/evidence_generator_robust.py",
+        "src/tests/unit/test_evidence_generator_gate_z6.py"
+      ],
+      "generated_files": [
+        "EVIDENCIAS/coverage_report.json",
+        "EVIDENCIAS/extractions_*.json",
+        "EVIDENCIAS/report.md"
+      ]
+    },
+    {
+      "gate_id": "Z7",
+      "name": "Summarizer integração final",
+      "test_files": [
+        "src/tests/integration/test_summarizer_gate_z7.py"
+      ],
+      "proof_command": "pytest src/tests/integration/test_summarizer_gate_z7.py -q",
+      "expected_artifacts": [
+        "src/summarizer_robust.py",
+        "src/tests/integration/test_summarizer_gate_z7.py"
+      ],
+      "generated_files": [
+        "EVIDENCIAS/coverage_report.json"
+      ]
+    },
+    {
+      "gate_id": "Z8",
+      "name": "Prova real (fim-a-fim)",
+      "test_files": [],
+      "proof_command": "Execução manual com PDF real",
+      "expected_artifacts": [],
+      "generated_files": [
+        "EVIDENCIAS/coverage_report.json",
+        "EVIDENCIAS/report.md",
+        "EVIDENCIAS/extractions_*.json"
+      ],
+      "validation": "overall_coverage_percentage == 100.0"
+    },
+    {
+      "gate_id": "Z9",
+      "name": "API + Frontend Observability",
+      "test_files": [
+        "src/tests/unit/test_api_schema_gate_z9.py",
+        "src/tests/integration/test_api_gate_z9.py"
+      ],
+      "proof_command": "pytest src/tests/unit/test_api_schema_gate_z9.py src/tests/integration/test_api_gate_z9.py -q",
+      "expected_artifacts": [
+        "src/tests/unit/test_api_schema_gate_z9.py",
+        "src/tests/integration/test_api_gate_z9.py",
+        "EVIDENCIAS/gate_z9_2_ui_smoke_test.md",
+        "EVIDENCIAS/gate_z9_3_docker_proof.md"
+      ]
+    }
+  ]
+}

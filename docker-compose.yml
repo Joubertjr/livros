@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book_summarizer
+    ports:
+      - "8000:8000"  # Expor Web UI
+    volumes:
+      - ./volumes:/app/volumes
+      - ./EVIDENCIAS:/app/EVIDENCIAS
+      - ./src:/app/src
+    env_file:
+      - .env
+    working_dir: /app
+    # Modo padrão: Web UI (definido no Dockerfile)
+    # Para CLI: docker exec -it book_summarizer python src/main.py --help
+    stdin_open: true
+    tty: true

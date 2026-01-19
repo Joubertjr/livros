@@ -1,0 +1,33 @@
+# CoverageSummarizer - DEMANDA-000
+# Dependências Python
+
+# INCR-2: Dependências para sumarização
+
+# Processamento de PDF
+PyPDF2>=3.0.0
+pdfplumber>=0.9.0
+pymupdf4llm>=0.0.9  # PDF → Markdown para LLMs
+
+# OpenAI API
+openai>=1.3.0
+
+# Geração de PDF
+reportlab>=4.0.0
+
+# Utilitários
+python-dotenv>=1.0.0
+
+# Testes (ENDFIRST - Gates obrigatórios)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+pytest-asyncio>=0.21.0
+
+# Web UI - FastAPI
+fastapi>=0.104.0
+pydantic>=2.0.0  # Validação de schemas (obrigatório para SummarizeResponse)
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+aiofiles>=23.0.0
+jinja2>=3.1.0
+sse-starlette>=1.6.5

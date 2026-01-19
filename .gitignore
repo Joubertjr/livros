@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Evidências e volumes (podem ser grandes)
+EVIDENCIAS/*.json
+EVIDENCIAS/*.txt
+EVIDENCIAS/*.md
+volumes/*.md
+volumes/*.pdf
+volumes/temp/
+
+# Mas manter estrutura de pastas
+!EVIDENCIAS/.gitkeep
+!volumes/.gitkeep
+
+# Environment
+.env
+.env.local
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

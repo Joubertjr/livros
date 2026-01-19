@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoverageSummarizer - Web UI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">CoverageSummarizer</h1>
+            <p class="subtitle">Summaries with guaranteed coverage and auditability</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Input Section -->
+        <section id="input-section" class="section">
+            <h2 class="section-title">Entrada</h2>
+
+            <!-- Tab Switcher -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="file" onclick="switchTab('file')">
+                    📁 Upload de Arquivo
+                </button>
+                <button class="tab-btn" data-tab="text" onclick="switchTab('text')">
+                    📝 Texto Direto
+                </button>
+            </div>
+
+            <!-- File Upload Tab -->
+            <div id="file-tab" class="tab-content active">
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-content">
+                        <p class="drop-zone-text">📄 Arraste um arquivo PDF ou TXT aqui</p>
+                        <p class="drop-zone-or">ou</p>
+                        <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+                            Selecionar Arquivo
+                        </button>
+                        <input type="file" id="file-input" accept=".pdf,.txt" hidden onchange="handleFileSelect(event)">
+                    </div>
+                </div>
+                <div id="file-info" class="file-info" style="display: none;">
+                    <div class="file-info-content">
+                        <span id="file-name"></span>
+                        <button class="btn-clear" onclick="clearFile()">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Input Tab -->
+            <div id="text-tab" class="tab-content">
+                <textarea
+                    id="text-input"
+                    class="text-input"
+                    placeholder="Cole ou digite seu texto aqui...&#10;&#10;Dica: Quanto maior o texto, melhores serão os resumos gerados pelo sistema."
+                    rows="10"></textarea>
+                <div class="text-input-info">
+                    <span id="char-count">0 caracteres</span>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="export-options">
+                <h3 class="options-title">Formatos de Exportação</h3>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="export-md" checked>
+                        <span>📄 Markdown (.md)</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="export-pdf">
+                        <span>📕 PDF</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submit-btn" class="btn btn-primary" onclick="submitForm()">
+                ✨ Gerar Resumos
+            </button>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progress-section" class="section" style="display: none;">
+            <h2 class="section-title">Progresso</h2>
+            <div class="progress-container">
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+                <div id="progress-message" class="progress-message">Iniciando...</div>
+                <div id="progress-percentage" class="progress-percentage">0%</div>
+            </div>
+        </section>
+
+        <!-- Result Banner Section -->
+        <section id="result-banner-section" class="section" style="display: none;">
+            <div id="result-banner" class="result-banner">
+                <!-- Conteúdo gerado dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Coverage & Evidence Section -->
+        <section id="coverage-section" class="section" style="display: none;">
+            <h2 class="section-title">Coverage & Evidence</h2>
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📊 Coverage Metrics</h3>
+                </div>
+                <div id="coverage-content" class="card-content">
+                    <!-- Gerado dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Reliability Section -->
+        <section id="reliability-section" class="section" style="display: none;">
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>🧠 Confiabilidade do Resumo</h3>
+                </div>
+                <div id="reliability-content" class="card-content">
+                    <!-- Gerado dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter-Based Results Section (NEW) -->
+        <section id="chapter-results-section" class="section" style="display: none;">
+            <h2 class="section-title">📚 Resumo Estruturado por Capítulos</h2>
+
+            <!-- Executive Summary -->
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📖 Resumo Executivo</h3>
+                </div>
+                <div id="executive-summary" class="card-content" style="display: block;"></div>
+            </div>
+
+            <!-- Chapter Navigation -->
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📑 Índice de Capítulos</h3>
+                </div>
+                <div id="chapter-toc" class="card-content" style="display: block;">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+
+            <!-- Chapters Container -->
+            <div id="chapters-container">
+                <!-- Chapter cards generated dynamically -->
+            </div>
+
+            <!-- Download Section -->
+            <div id="chapter-download-section" class="download-section" style="display: none;">
+                <h3>📥 Arquivos Exportados</h3>
+                <div id="chapter-download-links" class="download-links"></div>
+            </div>
+
+            <!-- New Summary Button -->
+            <button class="btn btn-secondary" onclick="resetForm()">
+                🔄 Novo Resumo
+            </button>
+        </section>
+
+        <!-- Final Summary Section -->
+        <section id="final-summary-section" class="section" style="display: none;">
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📄 Resumo Final Completo</h3>
+                </div>
+                <div id="final-summary-content" class="card-content">
+                    <!-- Texto completo -->
+                </div>
+                <div id="final-summary-actions" class="card-actions">
+                    <button class="btn btn-secondary" onclick="copyFinalSummary()">📋 Copiar</button>
+                    <button class="btn btn-secondary" onclick="exportFinalSummary('md')">📄 Exportar MD</button>
+                    <button class="btn btn-secondary" onclick="exportFinalSummary('pdf')">📕 Exportar PDF</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Observability Metrics Section (NEW) -->
+        <section id="observability-section" class="section" style="display: none;">
+            <h2 class="section-title">📊 Métricas de Observabilidade</h2>
+
+            <!-- Overall Metrics Card -->
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📈 Métricas Gerais</h3>
+                </div>
+                <div class="card-content">
+                    <div id="metrics-cards-container">
+                        <!-- Metric cards generated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Per-Chapter Metrics -->
+            <div class="summary-card">
+                <div class="card-header">
+                    <h3>📑 Métricas por Capítulo</h3>
+                </div>
+                <div id="chapter-metrics" class="card-content">
+                    <!-- Generated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section (Original - for non-chapter summaries) -->
+        <section id="results-section" class="section" style="display: none;">
+            <h2 class="section-title">Resultados</h2>
+
+            <!-- Summary Cards -->
+            <div class="summary-card">
+                <div class="card-header" onclick="toggleCard('short')">
+                    <h3>📝 Resumo Curto (até 100 palavras)</h3>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div id="short-summary" class="card-content collapsed"></div>
+            </div>
+
+            <div class="summary-card">
+                <div class="card-header" onclick="toggleCard('medium')">
+                    <h3>📄 Resumo Médio (até 300 palavras)</h3>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div id="medium-summary" class="card-content collapsed"></div>
+            </div>
+
+            <div class="summary-card">
+                <div class="card-header" onclick="toggleCard('long')">
+                    <h3>📚 Resumo Longo (até 500 palavras)</h3>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div id="long-summary" class="card-content collapsed"></div>
+            </div>
+
+            <div class="summary-card">
+                <div class="card-header" onclick="toggleCard('bullets')">
+                    <h3>🔹 Bullet Points Principais</h3>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div id="bullets-summary" class="card-content collapsed"></div>
+            </div>
+
+            <!-- Quality Gate Report -->
+            <div id="quality-report" class="summary-card" style="display: none;">
+                <div class="card-header">
+                    <h3>✅ Relatório de Validação (Quality Gate)</h3>
+                </div>
+                <div id="quality-content" class="card-content"></div>
+            </div>
+
+            <!-- Download Section -->
+            <div id="download-section" class="download-section" style="display: none;">
+                <h3>📥 Arquivos Exportados</h3>
+                <div id="download-links" class="download-links"></div>
+            </div>
+
+            <!-- New Summary Button -->
+            <button id="new-summary-btn" class="btn btn-secondary" onclick="resetForm()">
+                🔄 Novo Resumo
+            </button>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>CoverageSummarizer v1.0.0 | Powered by OpenAI GPT-4o-mini</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
