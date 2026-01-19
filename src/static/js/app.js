@@ -18,6 +18,11 @@ function setupEventListeners() {
     dropZone.addEventListener('dragover', handleDragOver);
     dropZone.addEventListener('dragleave', handleDragLeave);
     dropZone.addEventListener('drop', handleDrop);
+    
+    // File input change event
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+    }
 
     // Text input character count
     const textInput = document.getElementById('text-input');
@@ -938,9 +943,9 @@ function displayObservabilityMetrics(data) {
     }
     
     // Per-chapter metrics
-    const metricsContainer = document.getElementById('chapter-metrics');
+    const chapterMetricsContainer = document.getElementById('chapter-metrics');
     if (report.chapters && report.chapters.length > 0) {
-        metricsContainer.innerHTML = report.chapters.map(ch => {
+        chapterMetricsContainer.innerHTML = report.chapters.map(ch => {
             const audit = ch.audit_result || {};
             const passed = audit.passed !== undefined ? audit.passed : true;
             const addendumCount = audit.addendum_count || 0;
@@ -963,7 +968,7 @@ function displayObservabilityMetrics(data) {
             `;
         }).join('');
     } else {
-        metricsContainer.innerHTML = '<p class="text-secondary">Nenhuma métrica disponível</p>';
+        chapterMetricsContainer.innerHTML = '<p class="text-secondary">Nenhuma métrica disponível</p>';
     }
     
     // Show section
