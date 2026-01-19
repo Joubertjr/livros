@@ -21,10 +21,12 @@ Para um usuário final acessando `http://localhost:8000/`:
 - Resultados apresentados de forma mais legível e orientada a leitura
 - UX consistente com o valor do produto: confiança, rastreabilidade, clareza
 - Usuário nunca vê IDs técnicos, hashes ou marcadores internos
+- Usuário nunca fica em dúvida se o sistema está funcionando
+- Nenhum elemento da UI gera a pergunta: "isso é bug ou comportamento esperado?"
 - Todo bloco com conteúdo é visualmente legível sem interação oculta
 - Layout se adapta ao conteúdo (altura automática)
+- Leitura é possível sem scroll oculto ou descoberta acidental
 - Progresso comunica atividade contínua mesmo em etapas longas
-- Nenhum elemento da UI gera dúvida do tipo: "isso é bug ou comportamento esperado?"
 
 **⚠️ Importante:**
 Este END não altera funcionalidade, apenas forma de apresentação e experiência.
@@ -48,9 +50,12 @@ Este END não altera funcionalidade, apenas forma de apresentação e experiênc
 - ❌ Gate Z11 quebrado
 - ❌ Correção aplicada "direto no código" sem planejamento
 - ❌ Marcadores técnicos internos ([[RS:...]] ou similares) aparecem para o usuário
+- ❌ IDs de chunk, hashes, referências internas ou artefatos de rastreabilidade aparecem na UI
 - ❌ Blocos possuem conteúdo invisível ou cortado
+- ❌ Blocos que não expandem conforme o conteúdo
 - ❌ Usuário precisa usar scroll oculto para descobrir conteúdo
 - ❌ Métricas exibidas confundem sem explicação contextual
+- ❌ Métricas exibidas sem contexto semântico
 - ❌ Progresso parece travado durante execução longa
 - ❌ Usuário não sabe se o sistema está funcionando
 
@@ -74,39 +79,41 @@ Estes itens **NÃO são tarefas**, são sinais de oportunidade**:
   `[[RS:capX:hash|chunks:Y]]`
 - Esses identificadores são artefatos de rastreabilidade interna
 - Usuário final **NÃO deve ver** referências técnicas ou IDs de chunk
+- IDs de chunk, hashes, referências internas ou artefatos de rastreabilidade aparecem na UI
 
-➡️ **Registrar explicitamente:**
-"Qualquer marcador técnico interno visível ao usuário final é FAIL de UX."
+➡️ **Frase canônica:**
+"Usuário final nunca deve ver IDs técnicos, hashes ou marcadores internos.
+Qualquer ocorrência disso é FAIL de UX."
 
-### B) Métrica Confusa: "Original – 0 palavras"
+### B) Métricas Semanticamente Confusas
 - A UI exibe "Original – 0 palavras" para capítulos
 - Isso é tecnicamente verdadeiro, mas semanticamente confuso
-- Usuário não entende se é erro, bug ou comportamento esperado
+- Usuário não consegue distinguir se é bug, erro de processamento ou comportamento esperado
 
-➡️ **Registrar como problema de clareza semântica:**
-"UX não pode expor métrica correta porém semanticamente ambígua sem explicação."
+➡️ **Frase canônica:**
+"Métrica correta mas semanticamente ambígua é FAIL de clareza de UX."
 
-### C) Blocos com Altura Travada / Conteúdo Invisível (BUG DE UX)
+### C) Blocos com Conteúdo Invisível ou Área Travada (BUG DE UX)
 - Blocos como "Coverage & Evidence" e "Confiabilidade do Resumo":
   - Possuem conteúdo interno
-  - Mas a UI não expande a área de leitura
-  - Conteúdo fica invisível ou parcialmente cortado
+  - Não expandem verticalmente conforme o conteúdo
+  - Cortam informação ou exigem scroll oculto
 - Usuário **NÃO consegue saber** o que existe dentro do bloco
 
-➡️ **Registrar como BUG de UX:**
-"Blocos de conteúdo DEVEM expandir verticalmente conforme o conteúdo.
-Scroll interno oculto ou conteúdo cortado é FAIL."
+➡️ **Frase canônica obrigatória:**
+"Todo bloco com conteúdo deve expandir verticalmente conforme o conteúdo.
+Conteúdo invisível, cortado ou acessível apenas por scroll oculto é FAIL."
 
 ### D) Feedback Insuficiente Durante Execuções Longas (SSE)
-- Durante longas execuções (~15 minutos):
-  - Progresso fica visualmente parado (ex.: 35%)
+- Durante execuções longas (~15 minutos):
+  - Progresso visual pode ficar estático (ex.: 35%)
   - Backend continua ativo via keepalive SSE
-  - Usuário não sabe se travou ou está processando
+  - Usuário não sabe se o sistema travou ou está processando
 - Console mostra atividade, mas UI não comunica progresso perceptível
 
-➡️ **Registrar explicitamente:**
-"UX deve fornecer feedback perceptível contínuo durante longas etapas,
-mesmo quando percentual não muda."
+➡️ **Frase canônica:**
+"UX deve comunicar atividade contínua perceptível durante etapas longas,
+mesmo quando o percentual não muda."
 
 **⚠️ Nenhum desses pontos é bug funcional.**  
 São problemas de experiência do usuário que precisam ser refinados.
@@ -144,8 +151,8 @@ São problemas de experiência do usuário que precisam ser refinados.
 2. Definir mudanças de texto/labels
 3. Definir melhorias visuais (layout, espaçamento, hierarquia)
 4. Implementar mudanças mínimas
-5. Gerar evidência UX (prints/PDF)
-6. Validar Z11 novamente
+5. Gerar evidência UX obrigatória (prints ou PDF em `/EVIDENCIAS/ux/`)
+6. Validar Z11 novamente (Gate Z11 continua bloqueante após qualquer alteração de UX)
 7. Declarar PASS
 
 ---
