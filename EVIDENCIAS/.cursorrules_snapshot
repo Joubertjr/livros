@@ -1,5 +1,22 @@
 # Regras e Diretrizes - CoverageSummarizer
 
+## ⚠️ REGRA CRÍTICA: ATUALIZAÇÃO DESTE ARQUIVO
+
+**MÉTODO OBRIGATÓRIO PARA ATUALIZAR .cursorrules (evita travamento):**
+
+SEMPRE usar via terminal com cat e heredoc:
+cd /Users/joubertsouza/Documents/livros && cat > .cursorrules << 'CURSORRULES_EOF'
+[conteúdo completo do arquivo]
+CURSORRULES_EOF
+
+**Regra canônica:** 
+- SEMPRE usar cat > .cursorrules << 'CURSORRULES_EOF' via terminal
+- NUNCA usar search_replace neste arquivo (causa travamento)
+- NUNCA usar write tool neste arquivo (pode travar)
+- Este arquivo deve ser sempre reescrito completamente, nunca editado parcialmente
+
+---
+
 ## PROJECT IDENTITY (IMMUTABLE)
 
 Project name: CoverageSummarizer
@@ -79,10 +96,10 @@ No final de qualquer tarefa, Cursor DEVE incluir:
 - `docker compose exec app make evidence` - Gera evidências
 - Todos os comandos devem funcionar dentro do container
 
-## Mandatory Gate Validation (Z0→Z10)
+## Mandatory Gate Validation (Z0→Z11)
 
 - The canonical checklist is `CHECKLIST_Z_GATES.md`.
-- You MUST NOT declare progress without mapping it to a Gate (Z0..Z10).
+- You MUST NOT declare progress without mapping it to a Gate (Z0..Z11).
 - For any Gate to be considered PASS, you MUST provide:
  1) `pytest -q` passing
  2) Direct evidence (tests + asserts + files)
