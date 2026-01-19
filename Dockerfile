@@ -11,6 +11,7 @@ WORKDIR /app
 # System deps (optional but good for wheels)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    git \
   && rm -rf /var/lib/apt/lists/*
 
 # Python deps
@@ -19,6 +20,9 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # App source
 COPY src /app/src
+
+# Copy scripts (including sync_metodo.py)
+COPY scripts /app/scripts
 
 # Copy Makefile
 COPY Makefile /app/Makefile

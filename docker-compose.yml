@@ -10,6 +10,8 @@ services:
       - ./volumes:/app/volumes
       - ./EVIDENCIAS:/app/EVIDENCIAS
       - ./src:/app/src
+      - ./scripts:/app/scripts
+      - ./METODO:/app/METODO
       - ./frontends:/app/frontends
       - ./README.md:/app/README.md
       - ./.cursorrules:/app/.cursorrules
