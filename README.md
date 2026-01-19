@@ -49,6 +49,35 @@ Regras obrigatórias:
 - Refatoração faz parte da tarefa
 - Critério de feito: Funciona + Passa testes + É legível
 
+## Regras de Manutenção de Arquivos de Configuração
+
+### Atualização do `.cursorrules`
+
+**⚠️ REGRA CANÔNICA:** O arquivo `.cursorrules` DEVE ser atualizado APENAS via terminal.
+
+**Método obrigatório:**
+```bash
+cd /Users/joubertsouza/Documents/livros && cat > .cursorrules << 'CURSORRULES_EOF'
+[conteúdo completo do arquivo]
+CURSORRULES_EOF
+```
+
+**Alternativa (se cat falhar):**
+```bash
+python3 << 'PYEOF'
+content = """[conteúdo completo do arquivo]"""
+with open('.cursorrules', 'w', encoding='utf-8') as f:
+    f.write(content)
+PYEOF
+```
+
+**PROIBIDO:**
+- ❌ Usar `search_replace` tool (causa travamento)
+- ❌ Usar `write` tool (pode travar)
+- ❌ Editar parcialmente (sempre reescrever completamente)
+
+**Motivo:** Arquivos ocultos (`.cursorrules`) podem travar o Cursor quando editados com ferramentas de edição parcial. A reescrita completa via terminal é o método garantido.
+
 ## Comandos Úteis
 
 - `docker compose exec app make evidence` - Gera evidências de execução
