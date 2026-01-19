@@ -58,6 +58,9 @@ Estes itens **NÃO são tarefas**, são sinais de oportunidade**:
   - evidências
 - UX atual é "engenharia-first", não "leitor-first"
 
+**Feedback durante execuções longas:**
+Durante execuções longas (~15 min), o progresso pode ficar visualmente estático (ex.: 35%) enquanto o backend continua ativo via keepalive SSE. Isso gera incerteza no usuário ("travou?"). Refinar feedback perceptível durante essas etapas é objetivo explícito desta demanda.
+
 **⚠️ Nenhum desses pontos é bug.**  
 São refinamentos, não correções.
 
