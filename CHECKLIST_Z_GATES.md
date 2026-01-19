@@ -1,4 +1,4 @@
-# Checklist Completo — Gates Z0 → Z8 (GO/NO-GO)
+# Checklist Completo — Gates Z0 → Z10 (GO/NO-GO)
 
 ## Regras Globais (valem para TODOS os gates)
 
@@ -391,6 +391,63 @@ cat EVIDENCIAS/coverage_report.json | jq '.overall_coverage_percentage, .passed'
 ```bash
 pytest src/tests/unit/test_api_schema_gate_z9.py src/tests/integration/test_api_gate_z9.py -q
 ```
+
+---
+
+## Gate Z10 — Code Quality (TDD + Clean Code)
+
+**Objetivo:** Garantir que código novo ou alterado atende aos padrões de TDD e Clean Code.
+
+### Checklist
+
+- [ ] Z10.0: Código novo ou alterado tem testes correspondentes
+- [ ] Z10.1: Testes falham antes da implementação (ou são RED/xfail por design)
+- [ ] Z10.2: Funções são pequenas e coesas (≤50 linhas, preferencialmente ≤40)
+- [ ] Z10.3: Nomes de funções/variáveis explicam intenção, não implementação
+- [ ] Z10.4: Nenhuma regra de negócio está duplicada
+- [ ] Z10.5: Nenhuma lógica crítica está implícita ou "mágica"
+- [ ] Z10.6: Não existem TODOs, HACKs ou comentários de desculpa
+- [ ] Z10.7: Código é legível em sequência (humano novo consegue entender)
+- [ ] Z10.8: Frontend e backend permanecem desacoplados
+- [ ] Z10.9: `pytest -q` passa (0 failed)
+- [ ] Z10.10: A implementação parte do resultado final esperado (END-FIRST), não da conveniência técnica
+
+### Z10.A — Heurísticas Objetivas (Validação Manual Obrigatória)
+
+Heurísticas objetivas (validação manual), com prova via comandos no Docker:
+
+- [ ] **Funções > 50 linhas** → FAIL (justificar exceção se necessário)
+- [ ] **Arquivo > 400 linhas** → Justificar ou refatorar
+- [ ] **Duplicação óbvia (copy/paste)** → FAIL (extrair função comum)
+- [ ] **RED não documentado como "por design"** → FAIL (é dívida técnica)
+- [ ] **TODO|HACK|FIXME no código** → FAIL (remover ou justificar)
+
+**Exceção para Função > 50 linhas (Canônica)**:
+
+Permitido SOMENTE se:
+- Função for **adapter/wrapper** sem regra de negócio
+- Tiver **teste cobrindo o comportamento** completo
+- **Justificativa registrada** no relatório final + evidência
+
+### Comando de Prova
+
+```bash
+docker compose exec app bash -c 'pytest -q'
+```
+
+### Critérios de FAIL
+
+Gate Z10 FALHA se:
+- "Funciona mas está feio"
+- "Depois a gente refatora"
+- "Não deu tempo de escrever teste"
+- Função >50 linhas sem justificativa (exceto wrapper/adapter documentado)
+- Lógica implícita ou "mágica"
+- Regra de negócio duplicada
+- RED não documentado como "por design"
+- Implementação parte de conveniência técnica, não do resultado final (viola END-FIRST)
+
+**Regra Crítica:** Gate Z10 falhou = PR bloqueado, mesmo com coverage 100%.
 
 ---
 

@@ -10,6 +10,11 @@ services:
       - ./volumes:/app/volumes
       - ./EVIDENCIAS:/app/EVIDENCIAS
       - ./src:/app/src
+      - ./frontends:/app/frontends
+      - ./README.md:/app/README.md
+      - ./.cursorrules:/app/.cursorrules
+      - ./CHECKLIST_Z_GATES.md:/app/CHECKLIST_Z_GATES.md
+      - ./gates_manifest.json:/app/gates_manifest.json
     env_file:
       - .env
     working_dir: /app

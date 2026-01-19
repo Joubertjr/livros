@@ -33,6 +33,22 @@ CoverageSummarizer is a deterministic, evidence-first system that guarantees
 - `volumes/` - Exportações (MD/PDF)
 - `planejamento/` - Planos de execução
 
+## Engineering Principles
+
+CoverageSummarizer é um projeto **TDD-first** e **Clean-Code enforced**.
+
+Regras obrigatórias:
+
+- Nenhuma implementação sem testes
+- Teste falha antes da implementação (ou RED/xfail por design)
+- Funções pequenas (≤50 linhas)
+- Nomes explicam intenção
+- Nenhuma lógica implícita
+- Nenhuma duplicação
+- Nenhum TODO, HACK ou FIXME
+- Refatoração faz parte da tarefa
+- Critério de feito: Funciona + Passa testes + É legível
+
 ## Comandos Úteis
 
 - `docker compose exec app make evidence` - Gera evidências de execução

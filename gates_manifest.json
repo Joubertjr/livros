@@ -154,6 +154,17 @@
         "EVIDENCIAS/gate_z9_2_ui_smoke_test.md",
         "EVIDENCIAS/gate_z9_3_docker_proof.md"
       ]
+    },
+    {
+      "gate_id": "Z10",
+      "name": "Code Quality (TDD + Clean Code)",
+      "test_files": [],
+      "proof_command": "pytest -q",
+      "expected_artifacts": [
+        "Testes cobrindo código novo/alterado",
+        "Código refatorado quando necessário"
+      ],
+      "validation": "0 failed + funções pequenas + sem duplicação + sem lógica implícita"
     }
   ]
 }
