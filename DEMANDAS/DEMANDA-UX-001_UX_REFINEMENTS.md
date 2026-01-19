@@ -18,18 +18,30 @@ Para um usuário final acessando `http://localhost:8000/`:
   - carregando
   - sucesso
   - erro
-- Resultados apresentados de forma mais legível e orientada a leitura
+- Resultados apresentados de forma legível, orientada à leitura
 - UX consistente com o valor do produto: confiança, rastreabilidade, clareza
-- Usuário nunca vê IDs técnicos, hashes ou marcadores internos
-- Usuário nunca fica em dúvida se o sistema está funcionando
-- Nenhum elemento da UI gera a pergunta: "isso é bug ou comportamento esperado?"
-- Todo bloco com conteúdo é visualmente legível sem interação oculta
-- Layout se adapta ao conteúdo (altura automática)
-- Leitura é possível sem scroll oculto ou descoberta acidental
+- Usuário **NUNCA** vê IDs técnicos, hashes, marcadores internos ou artefatos de engenharia
+- Todo conteúdo é imediatamente visível
+- Layout expande verticalmente conforme o conteúdo
+- Scroll interno é proibido
 - Progresso comunica atividade contínua mesmo em etapas longas
+- Nenhum elemento da UI gera dúvida do tipo: "isso é bug ou comportamento esperado?"
 
 **⚠️ Importante:**
 Este END não altera funcionalidade, apenas forma de apresentação e experiência.
+
+---
+
+## 🚫 REGRA CANÔNICA — LEGIBILIDADE (NÃO NEGOCIÁVEL)
+
+**Scroll interno é PROIBIDO.**
+
+Nenhum componente da UI pode usar scroll interno.
+Todo bloco deve expandir verticalmente conforme o conteúdo.
+Se o usuário não vê o conteúdo imediatamente, isso é FAIL.
+
+Scroll interno, overflow oculto ou conteúdo cortado não são UX refinements,
+são **BUGS de produto**.
 
 ---
 
@@ -38,7 +50,11 @@ Este END não altera funcionalidade, apenas forma de apresentação e experiênc
 ### PASS
 - ✅ Usuário entende o que está vendo sem explicação externa
 - ✅ Nenhum texto técnico desnecessário exposto ao usuário final
+- ✅ Nenhum identificador técnico interno visível ([[RS:...]], hashes, IDs)
+- ✅ Todo conteúdo visível sem scroll interno
+- ✅ Blocos expandem automaticamente conforme o conteúdo
 - ✅ Estados vazios e mensagens fazem sentido
+- ✅ Progresso comunica atividade contínua durante execuções longas
 - ✅ Interface continua funcional (Gate Z11 continua PASS)
 - ✅ Nenhuma regressão funcional (Z0–Z11 continuam PASS)
 - ✅ Evidência UX gerada (prints ou PDF em `/EVIDENCIAS/ux/`)
@@ -48,14 +64,11 @@ Este END não altera funcionalidade, apenas forma de apresentação e experiênc
 - ❌ UI "mais bonita" mas menos clara
 - ❌ Qualquer regressão funcional
 - ❌ Gate Z11 quebrado
-- ❌ Correção aplicada "direto no código" sem planejamento
-- ❌ Marcadores técnicos internos ([[RS:...]] ou similares) aparecem para o usuário
-- ❌ IDs de chunk, hashes, referências internas ou artefatos de rastreabilidade aparecem na UI
-- ❌ Blocos possuem conteúdo invisível ou cortado
-- ❌ Blocos que não expandem conforme o conteúdo
-- ❌ Usuário precisa usar scroll oculto para descobrir conteúdo
-- ❌ Métricas exibidas confundem sem explicação contextual
-- ❌ Métricas exibidas sem contexto semântico
+- ❌ Correção aplicada direto no código sem planejamento
+- ❌ Marcadores técnicos internos visíveis ao usuário final
+- ❌ Conteúdo oculto, cortado ou acessível apenas via scroll interno
+- ❌ Usuário precisa "descobrir" que há conteúdo escondido
+- ❌ Métricas corretas porém semanticamente confusas sem explicação
 - ❌ Progresso parece travado durante execução longa
 - ❌ Usuário não sabe se o sistema está funcionando
 
@@ -63,60 +76,47 @@ Este END não altera funcionalidade, apenas forma de apresentação e experiênc
 
 ## 🧠 Problemas Observados (Contexto)
 
-Estes itens **NÃO são tarefas**, são sinais de oportunidade**:
+Estes itens **NÃO são tarefas**. São evidências do problema.
 
-- "Original – 0 palavras" pode confundir usuários não técnicos
-- Métricas e rastreabilidade são poderosas, mas podem ser melhor explicadas
-- Resultado é correto, mas pode ser mais legível
-- Falta hierarquia visual clara entre:
-  - resumo
-  - capítulos
-  - evidências
-- UX atual é "engenharia-first", não "leitor-first"
+### A) Vazamento de Ruído Técnico
+- Resumo exibe marcadores internos como `[[RS:capX:hash|chunks:Y]]`
+- Esses marcadores são artefatos de rastreabilidade interna
+- Usuário final **NÃO deve vê-los**
 
-### A) Ruído Técnico Vazando para Usuário Final
-- O resumo exibido ao usuário contém marcadores técnicos internos como:
-  `[[RS:capX:hash|chunks:Y]]`
-- Esses identificadores são artefatos de rastreabilidade interna
-- Usuário final **NÃO deve ver** referências técnicas ou IDs de chunk
-- IDs de chunk, hashes, referências internas ou artefatos de rastreabilidade aparecem na UI
+➡️ **Regra:**
+"Qualquer marcador técnico interno visível ao usuário final é FAIL de UX."
 
-➡️ **Frase canônica:**
-"Usuário final nunca deve ver IDs técnicos, hashes ou marcadores internos.
-Qualquer ocorrência disso é FAIL de UX."
+---
 
-### B) Métricas Semanticamente Confusas
-- A UI exibe "Original – 0 palavras" para capítulos
-- Isso é tecnicamente verdadeiro, mas semanticamente confuso
-- Usuário não consegue distinguir se é bug, erro de processamento ou comportamento esperado
+### B) Métrica Semanticamente Confusa
+- UI exibe "Original – 0 palavras"
+- Tecnicamente correto, semanticamente confuso
+- Usuário não sabe se é bug ou comportamento esperado
 
-➡️ **Frase canônica:**
-"Métrica correta mas semanticamente ambígua é FAIL de clareza de UX."
+➡️ **Regra:**
+"Métrica correta mas semanticamente ambígua é FAIL de UX."
 
-### C) Blocos com Conteúdo Invisível ou Área Travada (BUG DE UX)
-- Blocos como "Coverage & Evidence" e "Confiabilidade do Resumo":
-  - Possuem conteúdo interno
-  - Não expandem verticalmente conforme o conteúdo
-  - Cortam informação ou exigem scroll oculto
-- Usuário **NÃO consegue saber** o que existe dentro do bloco
+---
 
-➡️ **Frase canônica obrigatória:**
-"Todo bloco com conteúdo deve expandir verticalmente conforme o conteúdo.
-Conteúdo invisível, cortado ou acessível apenas por scroll oculto é FAIL."
+### C) Blocos com Conteúdo Invisível (BUG)
+- Blocos como "Coverage & Evidence" possuem conteúdo
+- UI não expande a área de leitura
+- Conteúdo fica oculto ou parcialmente cortado
 
-### D) Feedback Insuficiente Durante Execuções Longas (SSE)
-- Durante execuções longas (~15 minutos):
-  - Progresso visual pode ficar estático (ex.: 35%)
-  - Backend continua ativo via keepalive SSE
-  - Usuário não sabe se o sistema travou ou está processando
-- Console mostra atividade, mas UI não comunica progresso perceptível
+➡️ **Regra:**
+"Blocos DEVEM expandir verticalmente conforme o conteúdo.
+Scroll interno ou conteúdo oculto é FAIL."
 
-➡️ **Frase canônica:**
-"UX deve comunicar atividade contínua perceptível durante etapas longas,
-mesmo quando o percentual não muda."
+---
 
-**⚠️ Nenhum desses pontos é bug funcional.**  
-São problemas de experiência do usuário que precisam ser refinados.
+### D) Feedback Insuficiente em Execuções Longas
+- Execuções longas (~15 min)
+- Percentual fica parado (ex.: 35%)
+- Backend ativo via SSE keepalive
+- UI não comunica progresso perceptível
+
+➡️ **Regra:**
+"UX deve comunicar atividade contínua mesmo quando o percentual não muda."
 
 ---
 
@@ -125,8 +125,8 @@ São problemas de experiência do usuário que precisam ser refinados.
 ### DO
 - ✅ Melhorar clareza textual
 - ✅ Melhorar hierarquia visual
-- ✅ Melhorar feedback ao usuário
-- ✅ Manter rastreabilidade explícita
+- ✅ Melhorar feedback perceptível ao usuário
+- ✅ Manter rastreabilidade explícita (sem vazar para UI)
 - ✅ Manter todos os gates PASS
 
 ### DON'T
@@ -134,6 +134,7 @@ São problemas de experiência do usuário que precisam ser refinados.
 - ❌ Alterar lógica de sumarização
 - ❌ "Simplificar" removendo garantias
 - ❌ Refatorar backend
+- ❌ Introduzir scroll interno
 - ❌ Quebrar Gate Z11
 
 ---
@@ -143,17 +144,19 @@ São problemas de experiência do usuário que precisam ser refinados.
 - 🔒 Gate Z11 continua bloqueante
 - 🔒 Nenhuma alteração sem evidência visual
 - 🔒 UX ≠ estética → UX = clareza + confiança
+- 🔒 Scroll interno = BUG estrutural
 
 ---
 
 ## 📋 TODO Canônico (Somente Após F-1 Aprovada)
 1. F-1: Planejamento Canônico (UX)
-2. Definir mudanças de texto/labels
+2. Definir mudanças de texto e labels
 3. Definir melhorias visuais (layout, espaçamento, hierarquia)
 4. Implementar mudanças mínimas
-5. Gerar evidência UX obrigatória (prints ou PDF em `/EVIDENCIAS/ux/`)
-6. Validar Z11 novamente (Gate Z11 continua bloqueante após qualquer alteração de UX)
-7. Declarar PASS
+5. Garantir ausência total de scroll interno
+6. Gerar evidência UX (prints/PDF)
+7. Validar Gate Z11 novamente
+8. Declarar PASS
 
 ---
 
@@ -170,7 +173,7 @@ São problemas de experiência do usuário que precisam ser refinados.
 
 **BACKLOG**
 
-Este arquivo não autoriza execução.
+Este arquivo **NÃO autoriza execução**.
 
 Só pode ser executado após:
 - Priorização explícita
@@ -182,4 +185,6 @@ Só pode ser executado após:
 ## 🧭 Regra Final
 
 **Produto já funciona.**  
-Esta demanda existe para eliminar confusão, não para mudar lógica, pipeline ou garantias.
+Esta demanda existe para eliminar confusão.
+
+**Se o usuário precisa rolar um bloco para descobrir conteúdo, o produto falhou.**
