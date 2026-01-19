@@ -206,8 +206,8 @@ class ProgressTracker:
         # Stream updates
         while True:
             try:
-                # Wait for update with timeout
-                update = await asyncio.wait_for(queue.get(), timeout=30.0)
+                # Wait for update with timeout (aumentado para 60s para processamentos longos)
+                update = await asyncio.wait_for(queue.get(), timeout=60.0)
                 print(f"[SSE] Sending update: {update}")
                 yield f"data: {json.dumps(update)}\n\n"
 
@@ -222,16 +222,28 @@ class ProgressTracker:
                 yield f": keepalive\n\n"
 
                 # Check if session completed while waiting
-                if self.sessions[session_id].complete:
+                if session_id in self.sessions and self.sessions[session_id].complete:
                     final_update = {
                         "stage": self.sessions[session_id].stage,
                         "percentage": self.sessions[session_id].percentage,
                         "message": self.sessions[session_id].message,
                         "complete": True
                     }
+                    if self.sessions[session_id].stage == "error":
+                        final_update["error"] = True
                     print(f"[SSE] Sending final update: {final_update}")
                     yield f"data: {json.dumps(final_update)}\n\n"
                     break
+            except Exception as e:
+                # Handle unexpected errors in SSE stream
+                print(f"[SSE] Error in stream for session {session_id}: {e}")
+                error_data = {
+                    "error": True,
+                    "message": f"Erro no stream: {str(e)}",
+                    "complete": True
+                }
+                yield f"data: {json.dumps(error_data)}\n\n"
+                break
 
     def cleanup_old_sessions(self) -> int:
         """

@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
@@ -27,8 +27,21 @@ from api.schemas import SummarizeResponse, HealthResponse
 
 # Setup
 router = APIRouter()
-BASE_DIR = Path(__file__).parent.parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+# __file__ is src/api/routes.py, so parent.parent = src, parent.parent.parent = /app
+BASE_DIR = Path(__file__).parent.parent.parent
+
+# Support FRONTEND_TARGET
+import os
+FRONTEND_TARGET = os.getenv("FRONTEND_TARGET", "web")
+FRONTEND_DIR = BASE_DIR / "frontends" / FRONTEND_TARGET
+
+# Use frontends/ structure if it exists, otherwise fallback
+if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
+    TEMPLATES_DIR = FRONTEND_DIR
+else:
+    TEMPLATES_DIR = BASE_DIR / "src" / "templates"
+
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 @router.get("/")
@@ -37,9 +50,33 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@router.get("/favicon.ico")
+async def favicon():
+    """Serve favicon to avoid 404 errors."""
+    # Support FRONTEND_TARGET for favicon
+    if FRONTEND_DIR.exists() and (FRONTEND_DIR / "favicon.svg").exists():
+        favicon_path = FRONTEND_DIR / "favicon.svg"
+    else:
+        favicon_path = BASE_DIR / "src" / "static" / "favicon.svg"
+    if favicon_path.exists():
+        return FileResponse(
+            path=str(favicon_path),
+            media_type="image/svg+xml"
+        )
+    # Return 204 No Content if favicon doesn't exist
+    from fastapi import Response
+    return Response(status_code=204)
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint."""
+    return HealthResponse(status="healthy", version="1.0.0")
+
+
+@router.get("/api/health", response_model=HealthResponse)
+async def api_health_check():
+    """API health check endpoint (backend invariant to FRONTEND_TARGET)."""
     return HealthResponse(status="healthy", version="1.0.0")
 
 
@@ -173,17 +210,158 @@ async def download_file(filename: str):
     )
 
 
+def _finalize_timings(timings: dict, total_time: float) -> dict:
+    """
+    Finaliza cálculos de timings garantindo que todas as chaves existam.
+    
+    Args:
+        timings: Dicionário com timings parciais
+        total_time: Tempo total do processamento
+        
+    Returns:
+        Dicionário com todos os timings finalizados
+    """
+    # Garantir que todas as chaves existam (valores padrão se não existirem)
+    final_timings = {
+        'reading': timings.get('reading', 0.0),
+        'processing': timings.get('processing', 0.0),
+        'exporting': timings.get('exporting', 0.0),
+        'evidence': 0.0,  # Sempre 0 (incluído no processing)
+        'total': total_time
+    }
+    return final_timings
+
+
+def _print_timing_report(timings: dict, total_time: float, filename: Optional[str], content_text: str) -> None:
+    """
+    Imprime relatório detalhado de performance.
+    
+    Args:
+        timings: Dicionário com todos os timings
+        total_time: Tempo total do processamento
+        filename: Nome do arquivo processado (ou None)
+        content_text: Texto do conteúdo processado
+    """
+    print("\n" + "="*60, file=sys.stderr)
+    print("📊 RELATÓRIO DE PERFORMANCE", file=sys.stderr)
+    print("="*60, file=sys.stderr)
+    print(f"📄 Arquivo: {filename or 'texto direto'}", file=sys.stderr)
+    print(f"📝 Total de palavras: {len(content_text.split())}", file=sys.stderr)
+    print(f"\n⏱️  TEMPOS POR ETAPA:", file=sys.stderr)
+    print(f"   • Leitura:        {timings['reading']:>8.2f}s ({timings['reading']/total_time*100:>5.1f}%)", file=sys.stderr)
+    print(f"   • Processamento:  {timings['processing']:>8.2f}s ({timings['processing']/total_time*100:>5.1f}%)", file=sys.stderr)
+    print(f"   • Exportação:     {timings['exporting']:>8.2f}s ({timings['exporting']/total_time*100:>5.1f}%)", file=sys.stderr)
+    print(f"   • Evidência:      {timings['evidence']:>8.2f}s (incluído no processamento)", file=sys.stderr)
+    print(f"\n🎯 TEMPO TOTAL:     {total_time:>8.2f}s", file=sys.stderr)
+    print("="*60 + "\n", file=sys.stderr)
+
+
+def _determine_status_from_coverage(coverage_report: Optional[dict]) -> Tuple[str, list]:
+    """
+    Determina status e erros baseado no coverage_report.
+    
+    Args:
+        coverage_report: Relatório de cobertura (ou None)
+        
+    Returns:
+        Tupla (status, errors) onde status é "PASS" ou "FAIL"
+    """
+    status = "PASS"
+    errors = []
+    
+    if coverage_report:
+        if not coverage_report.get('passed', False):
+            status = "FAIL"
+            errors.append("Coverage validation failed")
+        if coverage_report.get('overall_coverage_percentage', 0) < 100.0:
+            status = "FAIL"
+            errors.append(f"Coverage {coverage_report.get('overall_coverage_percentage', 0)}% < 100%")
+    else:
+        # If no coverage_report, assume PASS for backward compatibility
+        status = "PASS"
+    
+    return status, errors
+
+
+def _build_result_contract(
+    session_id: str,
+    status: str,
+    errors: list,
+    exported_files: dict,
+    coverage_report: Optional[dict],
+    addendum_metrics: Optional[dict],
+    summaries: Optional[dict]
+) -> dict:
+    """
+    Constrói contrato canônico de resultado.
+    
+    Args:
+        session_id: ID da sessão
+        status: Status do processamento (PASS/FAIL)
+        errors: Lista de erros (se houver)
+        exported_files: Arquivos exportados
+        coverage_report: Relatório de cobertura
+        addendum_metrics: Métricas de addendum
+        summaries: Resumos gerados (apenas se status == PASS)
+        
+    Returns:
+        Dicionário com contrato canônico de resultado
+    """
+    result = {
+        "session_id": session_id,
+        "status": status,
+        "errors": errors,
+        "exported_files": exported_files,
+        "coverage_report": coverage_report,
+        "addendum_metrics": addendum_metrics
+    }
+    
+    # Only include summary/summaries if status == PASS
+    if status == "PASS":
+        result["summaries"] = summaries
+        # Also include summary as single string if available
+        if summaries and summaries.get('estrutura') == 'capitulos':
+            # Build full summary from chapters
+            full_summary = ""
+            for cap in summaries.get('capitulos', []):
+                full_summary += f"# {cap.get('titulo', '')}\n\n{cap.get('resumo', '')}\n\n"
+            result["summary"] = full_summary
+    else:
+        # Status FAIL - do not include summary
+        result["summaries"] = None
+        result["summary"] = None
+    
+    return result
+
+
 async def process_with_progress(
     session_id: str,
     text: Optional[str],
     file_data: Optional[bytes],
     filename: Optional[str],
     export_formats: list
-):
+) -> None:
     """
-    Process summarization with progress tracking.
+    Processa sumarização com rastreamento de progresso via SSE.
 
-    This wraps the existing summarization logic with progress updates.
+    Esta função envolve a lógica de sumarização existente com atualizações
+    de progresso em tempo real através de Server-Sent Events (SSE).
+
+    Args:
+        session_id: ID único da sessão de processamento
+        text: Texto para sumarizar (se fornecido diretamente)
+        file_data: Dados do arquivo para sumarizar (se fornecido via upload)
+        filename: Nome do arquivo (se file_data fornecido)
+        export_formats: Lista de formatos de exportação (ex: ['md', 'pdf'])
+
+    Raises:
+        ValueError: Se session_id não existe no tracker
+        Exception: Qualquer erro durante processamento é capturado e
+                   marcado no tracker, não propagado
+
+    Note:
+        Esta função é assíncrona e executa em background. O progresso
+        pode ser acompanhado via endpoint /api/progress/{session_id}
     """
     import time
 
@@ -330,24 +508,13 @@ async def process_with_progress(
         # Apenas coletar referências aos arquivos
         evidence_files = result.get('evidence_files', {})
         evidence_file = evidence_files.get('coverage_report', None) if evidence_files else None
-
-        # Complete
+        
+        # Complete timing calculations
         total_time = time.time() - start_time
-        timings['total'] = total_time
-
+        timings = _finalize_timings(timings, total_time)
+        
         # Print detailed timing summary
-        print("\n" + "="*60, file=sys.stderr)
-        print("📊 RELATÓRIO DE PERFORMANCE", file=sys.stderr)
-        print("="*60, file=sys.stderr)
-        print(f"📄 Arquivo: {filename or 'texto direto'}", file=sys.stderr)
-        print(f"📝 Total de palavras: {len(content_text.split())}", file=sys.stderr)
-        print(f"\n⏱️  TEMPOS POR ETAPA:", file=sys.stderr)
-        print(f"   • Leitura:        {timings['reading']:>8.2f}s ({timings['reading']/total_time*100:>5.1f}%)", file=sys.stderr)
-        print(f"   • Processamento:  {timings['processing']:>8.2f}s ({timings['processing']/total_time*100:>5.1f}%)", file=sys.stderr)
-        print(f"   • Exportação:     {timings['exporting']:>8.2f}s ({timings['exporting']/total_time*100:>5.1f}%)", file=sys.stderr)
-        print(f"   • Evidência:      {timings['evidence']:>8.2f}s ({timings['evidence']/total_time*100:>5.1f}%)", file=sys.stderr)
-        print(f"\n🎯 TEMPO TOTAL:     {total_time:>8.2f}s", file=sys.stderr)
-        print("="*60 + "\n", file=sys.stderr)
+        _print_timing_report(timings, total_time, filename, content_text)
 
         tracker.update_progress(session_id, "complete", 100, f"Concluído em {total_time:.1f}s!")
 
@@ -362,53 +529,31 @@ async def process_with_progress(
             }
 
         # Determine status from coverage_report
-        status = "PASS"
-        errors = []
-        if coverage_report:
-            if not coverage_report.get('passed', False):
-                status = "FAIL"
-                errors.append("Coverage validation failed")
-            if coverage_report.get('overall_coverage_percentage', 0) < 100.0:
-                status = "FAIL"
-                errors.append(f"Coverage {coverage_report.get('overall_coverage_percentage', 0)}% < 100%")
-        else:
-            # If no coverage_report, assume PASS for backward compatibility
-            status = "PASS"
+        status, errors = _determine_status_from_coverage(coverage_report)
 
         # Build canonical contract
-        result = {
-            "session_id": session_id,
-            "status": status,
-            "errors": errors,
-            "exported_files": exported_files,
-            "coverage_report": coverage_report,
-            "addendum_metrics": addendum_metrics
-        }
-        
-        # Only include summary/summaries if status == PASS
-        if status == "PASS":
-            result["summaries"] = summaries
-            # Also include summary as single string if available
-            if summaries and summaries.get('estrutura') == 'capitulos':
-                # Build full summary from chapters
-                full_summary = ""
-                for cap in summaries.get('capitulos', []):
-                    full_summary += f"# {cap.get('titulo', '')}\n\n{cap.get('resumo', '')}\n\n"
-                result["summary"] = full_summary
-        else:
-            # Status FAIL - do not include summary
-            result["summaries"] = None
-            result["summary"] = None
+        result = _build_result_contract(
+            session_id=session_id,
+            status=status,
+            errors=errors,
+            exported_files=exported_files,
+            coverage_report=coverage_report,
+            addendum_metrics=addendum_metrics,
+            summaries=summaries
+        )
 
         tracker.mark_complete(session_id, result)
 
     except Exception as e:
         # Handle errors
         error_msg = f"Erro durante processamento: {str(e)}"
-        tracker.mark_error(session_id, error_msg)
-        print(f"Error in session {session_id}: {e}")
+        print(f"❌ Error in session {session_id}: {e}", file=sys.stderr)
         import traceback
-        traceback.print_exc()
+        traceback.print_exc(file=sys.stderr)
+        try:
+            tracker.mark_error(session_id, error_msg)
+        except Exception as tracker_error:
+            print(f"❌ Failed to mark error in tracker: {tracker_error}", file=sys.stderr)
 
     finally:
         # Cleanup temp file

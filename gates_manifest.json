@@ -165,6 +165,16 @@
         "Código refatorado quando necessário"
       ],
       "validation": "0 failed + funções pequenas + sem duplicação + sem lógica implícita"
+    },
+    {
+      "gate_id": "Z11",
+      "name": "END-USER SMOKE / FRONTEND",
+      "test_files": [],
+      "proof_command": "docker compose exec app bash -c 'curl -s http://localhost:8000/ | head -1 && curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/static/css/style.css && curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/static/js/app.js && curl -s http://localhost:8000/api/health'",
+      "expected_artifacts": [
+        "EVIDENCIAS/gate_z11_end_user_smoke_proof.md"
+      ],
+      "validation": "HTML válido + CSS HTTP 200 + JS HTTP 200 + Health healthy"
     }
   ]
 }

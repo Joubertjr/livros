@@ -4,6 +4,9 @@
 let currentFile = null;
 let currentSessionId = null;
 let eventSource = null;
+let lastProgressUpdate = Date.now();
+let keepaliveCount = 0;
+let progressUpdateTimer = null;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -217,9 +220,13 @@ function connectProgressStream(sessionId) {
     eventSource.onmessage = (event) => {
         console.log('SSE message received:', event.data);
 
-        // Ignore keepalive comments (start with ":")
+        // UX Rule: "UX deve comunicar atividade contínua perceptível mesmo quando o percentual não muda."
+        // Keepalive indica que backend está ativo - mostrar feedback visual
         if (event.data.startsWith(':')) {
             console.log('Keepalive received, ignoring');
+            keepaliveCount++;
+            // Atualizar indicador visual de atividade contínua
+            updateActivityIndicator(true);
             return;
         }
 
@@ -240,7 +247,11 @@ function connectProgressStream(sessionId) {
                 if (data.error) {
                     showError(data.message);
                 } else {
-                    fetchResults(sessionId);
+                    // Wait a bit to ensure backend finished saving the result
+                    console.log('Waiting before fetching results...');
+                    setTimeout(() => {
+                        fetchResults(sessionId);
+                    }, 500);
                 }
             }
         } catch (e) {
@@ -251,10 +262,20 @@ function connectProgressStream(sessionId) {
     eventSource.onerror = (error) => {
         console.error('SSE Error:', error);
         console.log('SSE readyState:', eventSource.readyState);
-        eventSource.close();
-
-        // Try to fetch results anyway
-        setTimeout(() => fetchResults(sessionId), 1000);
+        
+        // Only close if connection is actually closed
+        if (eventSource.readyState === EventSource.CLOSED) {
+            eventSource.close();
+            
+            // Wait a bit longer before fetching results to ensure backend finished processing
+            console.log('SSE connection closed, waiting before fetching results...');
+            setTimeout(() => {
+                fetchResults(sessionId);
+            }, 2000);
+        } else {
+            // Connection might recover, don't close yet
+            console.log('SSE connection error but not closed, waiting for recovery...');
+        }
     };
 }
 
@@ -271,6 +292,9 @@ function updateProgress(percentage, message) {
         progressPercentage: progressPercentage
     });
 
+    lastProgressUpdate = Date.now();
+    keepaliveCount = 0; // Reset quando há atualização real
+
     if (progressBar) {
         progressBar.style.width = `${percentage}%`;
         console.log('Progress bar width set to:', progressBar.style.width);
@@ -280,6 +304,30 @@ function updateProgress(percentage, message) {
     }
     if (progressPercentage) {
         progressPercentage.textContent = `${percentage}%`;
+    }
+    
+    // Atualizar indicador de atividade
+    updateActivityIndicator(false);
+}
+
+// UX Rule: "UX deve comunicar atividade contínua perceptível mesmo quando o percentual não muda."
+function updateActivityIndicator(isKeepalive) {
+    const progressMessage = document.getElementById('progress-message');
+    if (!progressMessage) return;
+    
+    const timeSinceLastUpdate = Date.now() - lastProgressUpdate;
+    const isLongRunning = timeSinceLastUpdate > 10000; // Mais de 10 segundos sem atualização
+    
+    if (isKeepalive && isLongRunning) {
+        // Adicionar indicador visual de atividade contínua
+        const baseMessage = progressMessage.textContent || 'Processando...';
+        if (!baseMessage.includes('⏳')) {
+            progressMessage.textContent = `${baseMessage} ⏳ (sistema ativo...)`;
+            progressMessage.style.animation = 'pulse 2s infinite';
+        }
+    } else if (!isLongRunning) {
+        // Remover indicador quando há atualização recente
+        progressMessage.style.animation = '';
     }
 }
 
@@ -574,13 +622,17 @@ function displayChapterResults(data) {
                 ? ((palavrasResumo / palavrasOriginal) * 100).toFixed(2).replace('.', ',')
                 : '0,00';
             
+            // UX Rule: "Métrica correta mas semanticamente ambígua é FAIL de UX."
+            // Quando palavrasOriginal é 0, não exibir métrica confusa
+            const metricText = palavrasOriginal > 0 
+                ? `Original - ${palavrasOriginal.toLocaleString()} palavras | Resumo - ${palavrasResumo.toLocaleString()} palavras | % resumo/original ${porcentagem}%`
+                : `Resumo - ${palavrasResumo.toLocaleString()} palavras`;
+            
             return `
             <a href="#chapter-${i}" class="chapter-link">
                 📖 Capítulo ${cap.numero}: ${cap.titulo}
                 <span style="color: var(--text-secondary); font-size: 0.875rem;">
-                    Original - ${palavrasOriginal.toLocaleString()} palavras | 
-                    Resumo - ${palavrasResumo.toLocaleString()} palavras | 
-                    % resumo/original ${porcentagem}%
+                    ${metricText}
                 </span>
             </a>
         `;
@@ -609,9 +661,9 @@ function displayChapterResults(data) {
                     <div class="chapter-header">
                         <h3>Capítulo ${cap.numero}: ${cap.titulo}</h3>
                         <span class="chapter-meta">
-                            Original - ${(cap.palavras || 0).toLocaleString()} palavras | 
-                            Resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras | 
-                            % resumo/original ${cap.palavras > 0 ? ((cap.palavras_resumo / cap.palavras) * 100).toFixed(2).replace('.', ',') : '0,00'}%
+                            ${(cap.palavras || 0) > 0 
+                                ? `Original - ${(cap.palavras || 0).toLocaleString()} palavras | Resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras | % resumo/original ${((cap.palavras_resumo / cap.palavras) * 100).toFixed(2).replace('.', ',')}%`
+                                : `Resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras`}
                             ${cap.paginas && cap.paginas.length > 0 ? ` | Páginas: ${cap.paginas.join(', ')}` : ''}
                             ${addendumCount > 0 ? ` <span class="addendum-badge chapter-badge-tooltip" data-tooltip="Sistema aplicou reforço automático para garantir cobertura completa">📝 Addendum: ${addendumCount}</span>` : ''}
                             ${regenerationCount > 0 ? ` <span class="regeneration-badge chapter-badge-tooltip" data-tooltip="Número de tentativas até obter resumo válido">🔄 Regenerações: ${regenerationCount}</span>` : ''}
@@ -706,6 +758,11 @@ function displayChapterResults(data) {
 
 function formatSummary(text) {
     if (!text) return '<p class="text-secondary">Não disponível</p>';
+
+    // Remove technical markers ([[RS:capX:hash|chunks:Y]]) before formatting
+    // UX Rule: "Usuário final nunca deve ver artefatos internos de engenharia."
+    text = text.replace(/\[\[RS:cap\d+:[a-f0-9]+\|chunks:[^\]]+\]\]/g, '');
+    text = text.replace(/\[\[RS:[^\]]+\]\]/g, ''); // Catch any other RS markers
 
     // Convert line breaks to paragraphs
     const paragraphs = text.split('\n\n').map(p => {

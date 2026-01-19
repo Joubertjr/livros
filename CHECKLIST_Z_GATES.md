@@ -1,4 +1,4 @@
-# Checklist Completo — Gates Z0 → Z10 (GO/NO-GO)
+# Checklist Completo — Gates Z0 → Z11 (GO/NO-GO)
 
 ## Regras Globais (valem para TODOS os gates)
 
@@ -448,6 +448,111 @@ Gate Z10 FALHA se:
 - Implementação parte de conveniência técnica, não do resultado final (viola END-FIRST)
 
 **Regra Crítica:** Gate Z10 falhou = PR bloqueado, mesmo com coverage 100%.
+
+---
+
+## Gate Z11 — END-USER SMOKE / FRONTEND
+
+**Objetivo:** Garantir que a experiência observável do usuário final está funcional antes de declarar qualquer gate como PASS.
+
+**Regra Crítica:** Se a UI estiver quebrada para o usuário final, o sistema DEVE falhar estruturalmente antes de qualquer correção.
+
+### Checklist
+
+- [ ] Z11.0: HTML acessível em `http://localhost:8000/` (retorna HTML válido, não 404/500)
+- [ ] Z11.1: CSS acessível em `/static/css/style.css` (HTTP 200, não 404)
+- [ ] Z11.2: JS acessível em `/static/js/app.js` (HTTP 200, não 404)
+- [ ] Z11.3: Favicon acessível (se existir) (HTTP 200 ou 204, não 404)
+- [ ] Z11.4: API Health responde corretamente (`/api/health` retorna `{"status":"healthy"}`)
+- [ ] Z11.5: Nenhum recurso estático referenciado no HTML retorna 404
+- [ ] Z11.6: Evidência canônica gerada com outputs dos comandos
+
+### Prova Exigida
+
+**Comandos Obrigatórios (executados via Docker):**
+
+```bash
+# 1. HTML acessível
+docker compose exec app bash -c 'curl -s http://localhost:8000/ | head -5'
+
+# 2. CSS acessível (código HTTP 200)
+docker compose exec app bash -c 'curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/static/css/style.css'
+
+# 3. JS acessível (código HTTP 200)
+docker compose exec app bash -c 'curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/static/js/app.js'
+
+# 4. Favicon (se existir)
+docker compose exec app bash -c 'curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/static/favicon.svg'
+
+# 5. API Health
+docker compose exec app bash -c 'curl -s http://localhost:8000/api/health'
+```
+
+**Evidência Obrigatória:**
+- Output de cada comando acima colado em `EVIDENCIAS/gate_z11_end_user_smoke_proof.md`
+- Cada comando deve retornar resultado esperado (HTML válido, HTTP 200, healthy)
+- Status final: `Status: PASS` ou `Status: FAIL`
+
+### Artifacts Esperados
+
+- `EVIDENCIAS/gate_z11_end_user_smoke_proof.md` (evidência canônica com outputs)
+- Comandos executados via Docker (não local)
+- Status final: PASS ou FAIL
+
+### Comando de Prova
+
+```bash
+# Validação completa do Gate Z11
+docker compose exec app bash -c '
+  echo "=== Z11.0: HTML ===" && \
+  curl -s http://localhost:8000/ | head -1 && \
+  echo "=== Z11.1: CSS ===" && \
+  curl -s -o /dev/null -w "HTTP %{http_code}\n" http://localhost:8000/static/css/style.css && \
+  echo "=== Z11.2: JS ===" && \
+  curl -s -o /dev/null -w "HTTP %{http_code}\n" http://localhost:8000/static/js/app.js && \
+  echo "=== Z11.4: Health ===" && \
+  curl -s http://localhost:8000/api/health
+'
+```
+
+**Critério de PASS:** Todos os comandos retornam resultado esperado (HTML válido, HTTP 200, healthy).
+
+### Critérios de FAIL
+
+Gate Z11 FALHA se:
+
+- HTML retorna 404 ou 500
+- CSS retorna 404 ou 500
+- JS retorna 404 ou 500
+- Interface não renderiza visualmente (estilos não aplicados)
+- Console do navegador mostra erros 404 para recursos estáticos
+- API Health não responde
+- Qualquer recurso referenciado no HTML retorna 404
+
+**Regra Crítica:** Gate Z11 falhou = PR bloqueado, mesmo com todos os outros gates (Z0-Z10) PASS.
+
+### Regra de Bloqueio Estrutural
+
+**Gate Z11 é BLOQUEANTE:**
+
+- Se Gate Z11 falhar, **TODOS os outros gates (Z0-Z10) são considerados INCOMPLETOS**
+- Nenhum PR pode ser aprovado com Gate Z11 em FAIL
+- Nenhuma correção de produto pode ser aplicada sem Gate Z11 PASS
+
+**Ordem de Validação:**
+1. Gates Z0-Z10 (validação técnica)
+2. **Gate Z11 (validação de experiência do usuário final) — BLOQUEANTE**
+
+Se Z11 falhar → sistema estruturalmente quebrado → PR bloqueado.
+
+### Exceções e Casos Especiais
+
+**Quando Gate Z11 não se aplica:**
+- Sistema puramente CLI (sem interface web)
+- Sistema em modo API-only (sem frontend)
+- Desenvolvimento de backend isolado (sem frontend ativo)
+
+**Regra:** Se o sistema expõe interface web (`http://localhost:8000/` ou equivalente), Gate Z11 é **OBRIGATÓRIO**.
 
 ---
 

@@ -327,6 +327,16 @@ main {
     margin-bottom: 0.5rem;
 }
 
+/* UX Rule: "UX deve comunicar atividade contínua perceptível mesmo quando o percentual não muda." */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
 .progress-percentage {
     text-align: center;
     font-size: 2rem;
@@ -421,6 +431,26 @@ main {
     display: flex !important;
     flex-direction: column !important;
     min-height: auto !important;  /* Natural height based on content */
+}
+
+/* UX Rule: "Scroll interno é bug estrutural, não escolha de UX." */
+/* UX Rule: "Se o usuário não vê o conteúdo imediatamente, o produto falhou." */
+/* Coverage & Evidence and Reliability sections must always expand */
+#coverage-content,
+#reliability-content {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 1.5rem !important;
+    display: block !important;
+}
+
+/* Ensure coverage and reliability sections expand with content */
+#coverage-section .card-content,
+#reliability-section .card-content {
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 1.5rem !important;
+    display: block !important;
 }
 
 /* Download Section */

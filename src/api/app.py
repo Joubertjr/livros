@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sys
+import os
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -29,10 +30,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Setup paths
-BASE_DIR = Path(__file__).parent.parent
-STATIC_DIR = BASE_DIR / "static"
-TEMPLATES_DIR = BASE_DIR / "templates"
+# Setup paths with FRONTEND_TARGET support
+# __file__ is src/api/app.py, so parent.parent = src, parent.parent.parent = /app
+BASE_DIR = Path(__file__).parent.parent.parent
+FRONTEND_TARGET = os.getenv("FRONTEND_TARGET", "web")
+FRONTEND_DIR = BASE_DIR / "frontends" / FRONTEND_TARGET
+
+# Use frontends/ structure if it exists, otherwise fallback to src/static and src/templates
+if FRONTEND_DIR.exists() and (FRONTEND_DIR / "index.html").exists():
+    STATIC_DIR = FRONTEND_DIR
+    TEMPLATES_DIR = FRONTEND_DIR
+else:
+    # Fallback para estrutura antiga
+    STATIC_DIR = BASE_DIR / "static"
+    TEMPLATES_DIR = BASE_DIR / "templates"
 
 # Mount static files
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -49,6 +60,7 @@ app.include_router(routes.router)
 async def startup_event():
     """Initialize services on startup."""
     print("🚀 CoverageSummarizer Web UI started")
+    print(f"🎯 Frontend target: {FRONTEND_TARGET}")
     print(f"📁 Static files: {STATIC_DIR}")
     print(f"📄 Templates: {TEMPLATES_DIR}")
     print("✅ Ready to process documents with guaranteed coverage!")
