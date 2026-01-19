@@ -6,30 +6,30 @@ status: approved
 approved_by: CEO
 approved_at: 2026-01-19
 governed_by: /METODO/PILAR_ENDFIRST.md
-version: 1.0
+version: 1.1
 created_at: 2026-01-19
 ---
+
 # END-FIRST v2 — Planejamento como Artefato Canônico
 
-**Versão:** 1.0
-**Data:** 19 de Janeiro de 2026
-**Status:** Canônico (Evolução do Método)
-**Autoria:** CEO (Joubert Jr) + Manus AI
+**Versão:** 1.0  
+**Data:** 19 de Janeiro de 2026  
+**Status:** Canônico (Evolução do Método)  
+**Autoria:** CEO (Joubert Jr) + Manus AI  
 **Path Canônico:** `/METODO/END_FIRST_V2.md`
 
 ---
 
-## O QUE É END-FIRST v2
+## 🎯 O QUE É END-FIRST v2
 
 END-FIRST v2 é a **evolução canônica** do método END-FIRST que introduz **F-1 (Planejamento Canônico)** como estágio obrigatório e bloqueante antes de qualquer execução.
 
 **Princípio fundamental:**
-> "Planejamento é artefato de primeira classe.
-> Executor apenas executa."
+> "Planejamento é artefato de primeira classe. Executor apenas executa."
 
 ---
 
-## POR QUE END-FIRST v2 EXISTE
+## 🔥 POR QUE END-FIRST v2 EXISTE
 
 ### Problema Observado (Evidência Empírica)
 
@@ -61,11 +61,11 @@ O método END-FIRST atualmente:
 - Não diferencia planejamento, TODO e execução
 - Permite que o executor interprete regras durante a execução
 
-**Isso não escala sob carga real.**
+**👉 Isso não escala sob carga real.**
 
 ---
 
-## F-1 — PLANEJAMENTO CANÔNICO (BLOQUEANTE)
+## 🔒 F-1 — PLANEJAMENTO CANÔNICO (BLOQUEANTE)
 
 ### Definição
 
@@ -81,6 +81,7 @@ O método END-FIRST atualmente:
 ### END (Resultado Esperado de F-1)
 
 Ao final de F-1, devem existir:
+
 - ✅ **1 documento único de planejamento canônico**
 - ✅ **1 TODO canônico derivado do plano**
 - ✅ **Escopo DO / DON'T explícito**
@@ -93,6 +94,7 @@ Ao final de F-1, devem existir:
 ### DONE WHEN (Critérios de Conclusão)
 
 F-1 está concluída quando:
+
 - ✅ Declaração explícita no relatório: **"F-1 aprovada"**
 - ✅ Nenhum comando foi executado
 - ✅ Nenhum código foi alterado
@@ -103,6 +105,7 @@ F-1 está concluída quando:
 ### PROIBIÇÕES (FAIL Automático)
 
 Durante F-1, é **estritamente proibido:**
+
 - ❌ Executar comandos
 - ❌ Criar código
 - ❌ Criar automações
@@ -110,16 +113,16 @@ Durante F-1, é **estritamente proibido:**
 - ❌ Interpretar regras durante execução
 
 **Frase canônica:**
-> "F-1 é planejamento, não execução.
-> Executar durante F-1 é FAIL automático."
+> "F-1 é planejamento, não execução. Executar durante F-1 é FAIL automático."
 
 ---
 
-## REGRA GLOBAL (CANÔNICA)
+## 🧱 REGRA GLOBAL (CANÔNICA)
 
 > **"Planejamento é artefato de primeira classe."**
 
 **Implicações:**
+
 - O executor (Cursor) **apenas executa**
 - Arquitetura, governança e escopo **só existem antes da F-1 aprovada**
 - Interpretação acontece **durante planejamento**, não durante execução
@@ -127,9 +130,10 @@ Durante F-1, é **estritamente proibido:**
 
 ---
 
-## QUANDO F-1 É OBRIGATÓRIO
+## 📊 QUANDO F-1 É OBRIGATÓRIO
 
 ### F-1 é obrigatório para:
+
 - ✅ Projetos complexos (múltiplos arquivos, múltiplas etapas)
 - ✅ Mudanças estruturais no método
 - ✅ Implementação de novos produtos
@@ -137,6 +141,7 @@ Durante F-1, é **estritamente proibido:**
 - ✅ Demandas com critérios de FAIL não triviais
 
 ### F-1 é opcional para:
+
 - ❌ Demandas simples (1 arquivo, 1 etapa, escopo claro)
 - ❌ Correções triviais (typo, formatação)
 - ❌ Atualizações de documentação sem impacto estrutural
@@ -146,7 +151,7 @@ Durante F-1, é **estritamente proibido:**
 
 ---
 
-## FLUXO END-FIRST v2
+## 🔄 FLUXO END-FIRST v2
 
 ### Fluxo Completo (com F-1)
 
@@ -155,6 +160,7 @@ DEMANDA → F-1 (Planejamento) → APROVAÇÃO → CARD → EXECUÇÃO → EVID�
 ```
 
 ### Detalhamento de F-1
+
 1. **Input:** DEMANDA com END explícito
 2. **Processo:**
    - Criar documento de planejamento
@@ -168,7 +174,7 @@ DEMANDA → F-1 (Planejamento) → APROVAÇÃO → CARD → EXECUÇÃO → EVID�
 
 ---
 
-## ESTRUTURA DO DOCUMENTO DE PLANEJAMENTO (F-1)
+## 📦 ESTRUTURA DO DOCUMENTO DE PLANEJAMENTO (F-1)
 
 ### Template Mínimo
 
@@ -184,6 +190,7 @@ DEMANDA → F-1 (Planejamento) → APROVAÇÃO → CARD → EXECUÇÃO → EVID�
 - [ ] Etapa N: [descrição objetiva]
 
 ## ESCOPO
+
 ### DO (fazer)
 - ✅ [ação 1]
 - ✅ [ação 2]
@@ -209,14 +216,16 @@ DEMANDA → F-1 (Planejamento) → APROVAÇÃO → CARD → EXECUÇÃO → EVID�
 **Status:** [PENDENTE / APROVADO]
 **Aprovado por:** [nome]
 **Data:** [YYYY-MM-DD]
+
 **Declaração:** "F-1 aprovada"
 ```
 
 ---
 
-## IMPACTO ESPERADO
+## 🎯 IMPACTO ESPERADO
 
 Após END-FIRST v2:
+
 - ✅ **Zero retrabalho de validação**
 - ✅ **Zero interpretação durante execução**
 - ✅ **Cursor atua como executor literal**
@@ -226,7 +235,7 @@ Após END-FIRST v2:
 
 ---
 
-## INTEGRAÇÃO COM MÉTODO ATUAL
+## 🧠 INTEGRAÇÃO COM MÉTODO ATUAL
 
 ### Relação com ODs Existentes
 
@@ -242,7 +251,7 @@ Após END-FIRST v2:
 **OD-011 (Metacognição fora do caminho crítico)**
 - F-1 **resolve** OD-011: interpretação acontece em F-1, não durante execução
 
-**OD-012 (nova): Planejamento é artefato de primeira classe**
+**OD-012 (nova):** Planejamento é artefato de primeira classe
 - F-1 **cristaliza** OD-012: planejamento tem END, DONE WHEN, FAIL
 
 ---
@@ -266,7 +275,44 @@ Pilar ENDFIRST → DEMANDA → F-1 (Planejamento) → EXECUÇÃO
 
 ---
 
-## BLOQUEIOS E VALIDAÇÕES
+## 📌 EXEMPLOS PRÁTICOS
+
+### Exemplo 1: Demanda Simples (F-1 opcional)
+
+**DEMANDA:** Corrigir typo em README.md
+
+**Análise:**
+- 1 arquivo
+- 1 etapa
+- Escopo trivial
+- Sem dependências
+
+**Decisão:** F-1 não necessário (fluxo direto: DEMANDA → CARD → EXECUÇÃO)
+
+---
+
+### Exemplo 2: Demanda Complexa (F-1 obrigatório)
+
+**DEMANDA:** Implementar END-FIRST v2
+
+**Análise:**
+- 5 documentos impactados
+- Múltiplas etapas
+- Escopo complexo
+- Dependências entre documentos
+
+**Decisão:** F-1 obrigatório
+
+**F-1 criado:**
+- TODO canônico com 5 etapas
+- Escopo DO/DON'T explícito
+- Ordem de execução definida
+- Critérios de FAIL listados
+- Aprovação explícita: "F-1 aprovada"
+
+---
+
+## 🚨 BLOQUEIOS E VALIDAÇÕES
 
 ### Bloqueio Estrutural
 
@@ -276,8 +322,7 @@ Pilar ENDFIRST → DEMANDA → F-1 (Planejamento) → EXECUÇÃO
 3. F-1 foi aprovado? (declaração "F-1 aprovada")
 
 **Se F-1 é necessário e não existe:**
-> "Esta demanda requer F-1 (Planejamento Canônico).
-> Sem F-1 aprovada, não posso executar."
+> "Esta demanda requer F-1 (Planejamento Canônico). Sem F-1 aprovada, não posso executar."
 
 ---
 
@@ -294,13 +339,58 @@ Pilar ENDFIRST → DEMANDA → F-1 (Planejamento) → EXECUÇÃO
 
 ---
 
-## FRASE CANÔNICA
+## 📜 EVIDÊNCIA
+
+Esta evolução nasce de **uso real do método**, com múltiplos ciclos de retrabalho documentados durante:
+- Endurecimento tardio de regras
+- Redefinição de escopo
+- Validações repetidas
+
+**Não é opinião. É evidência empírica.**
+
+---
+
+## 🎯 FRASE CANÔNICA
 
 > **"Planejamento é artefato de primeira classe. Executor apenas executa."**
 
 ---
 
-## DECLARAÇÃO DO CEO
+## 📝 TEMPLATE CANÔNICO DE DEMANDA
+
+### Relação entre F-1 e Template Canônico
+
+**Template Canônico de Demanda:**
+- Define estrutura obrigatória de toda demanda
+- 11 seções obrigatórias
+- Frases canônicas explícitas
+- Regra de UX canônica (scroll interno proibido)
+
+**F-1 (Planejamento Canônico):**
+- Transforma demanda (já no template) em plano executável
+- Obrigatório para demandas complexas
+- Opcional para demandas simples
+
+**Fluxo completo:**
+```
+Demanda (Template Canônico) → F-1 (Planejamento) → Execução
+```
+
+### Bloqueio Estrutural
+
+**Regra:**
+> Demandas fora do template são FAIL estrutural.
+
+**Bloqueios:**
+- 🔒 Manus não aceita demandas fora do template
+- 🔒 Cursor não executa demandas fora do template
+- 🔒 CEO não revisa demandas que não sigam o template
+
+**Documento canônico:** `/METODO/TEMPLATE_DEMANDA_CANONICA.md`
+
+---
+
+## 📜 DECLARAÇÃO DO CEO
 
 Reconheço esta evolução como canônica e obrigatória para o método ENDFIRST.
 
@@ -309,12 +399,16 @@ END-FIRST v2 passa a governar:
 - Separação entre planejamento e execução
 - Bloqueio estrutural de interpretação durante execução
 
-**Status:** CANÔNICO
-**Aplicação:** Imediata para demandas complexas
-**Versão:** 1.0
+**Status:** CANÔNICO  
+**Aplicação:** Imediata para demandas complexas  
+**Versão:** 1.1
+
+**Histórico de mudanças:**
+- v1.0 (2026-01-19): Versão inicial (F-1 Planejamento Canônico)
+- v1.1 (2026-01-19): Adicionada seção Template Canônico de Demanda
 
 ---
 
-**Governado por:** `/METODO/PILAR_ENDFIRST.md`
-**Path Canônico:** `/METODO/END_FIRST_V2.md`
+**Governado por:** `/METODO/PILAR_ENDFIRST.md`  
+**Path Canônico:** `/METODO/END_FIRST_V2.md`  
 **Refs:** #12
