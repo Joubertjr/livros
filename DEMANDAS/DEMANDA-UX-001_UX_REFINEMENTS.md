@@ -20,6 +20,11 @@ Para um usuário final acessando `http://localhost:8000/`:
   - erro
 - Resultados apresentados de forma mais legível e orientada a leitura
 - UX consistente com o valor do produto: confiança, rastreabilidade, clareza
+- Usuário nunca vê IDs técnicos, hashes ou marcadores internos
+- Todo bloco com conteúdo é visualmente legível sem interação oculta
+- Layout se adapta ao conteúdo (altura automática)
+- Progresso comunica atividade contínua mesmo em etapas longas
+- Nenhum elemento da UI gera dúvida do tipo: "isso é bug ou comportamento esperado?"
 
 **⚠️ Importante:**
 Este END não altera funcionalidade, apenas forma de apresentação e experiência.
@@ -42,6 +47,12 @@ Este END não altera funcionalidade, apenas forma de apresentação e experiênc
 - ❌ Qualquer regressão funcional
 - ❌ Gate Z11 quebrado
 - ❌ Correção aplicada "direto no código" sem planejamento
+- ❌ Marcadores técnicos internos ([[RS:...]] ou similares) aparecem para o usuário
+- ❌ Blocos possuem conteúdo invisível ou cortado
+- ❌ Usuário precisa usar scroll oculto para descobrir conteúdo
+- ❌ Métricas exibidas confundem sem explicação contextual
+- ❌ Progresso parece travado durante execução longa
+- ❌ Usuário não sabe se o sistema está funcionando
 
 ---
 
@@ -58,11 +69,47 @@ Estes itens **NÃO são tarefas**, são sinais de oportunidade**:
   - evidências
 - UX atual é "engenharia-first", não "leitor-first"
 
-**Feedback durante execuções longas:**
-Durante execuções longas (~15 min), o progresso pode ficar visualmente estático (ex.: 35%) enquanto o backend continua ativo via keepalive SSE. Isso gera incerteza no usuário ("travou?"). Refinar feedback perceptível durante essas etapas é objetivo explícito desta demanda.
+### A) Ruído Técnico Vazando para Usuário Final
+- O resumo exibido ao usuário contém marcadores técnicos internos como:
+  `[[RS:capX:hash|chunks:Y]]`
+- Esses identificadores são artefatos de rastreabilidade interna
+- Usuário final **NÃO deve ver** referências técnicas ou IDs de chunk
 
-**⚠️ Nenhum desses pontos é bug.**  
-São refinamentos, não correções.
+➡️ **Registrar explicitamente:**
+"Qualquer marcador técnico interno visível ao usuário final é FAIL de UX."
+
+### B) Métrica Confusa: "Original – 0 palavras"
+- A UI exibe "Original – 0 palavras" para capítulos
+- Isso é tecnicamente verdadeiro, mas semanticamente confuso
+- Usuário não entende se é erro, bug ou comportamento esperado
+
+➡️ **Registrar como problema de clareza semântica:**
+"UX não pode expor métrica correta porém semanticamente ambígua sem explicação."
+
+### C) Blocos com Altura Travada / Conteúdo Invisível (BUG DE UX)
+- Blocos como "Coverage & Evidence" e "Confiabilidade do Resumo":
+  - Possuem conteúdo interno
+  - Mas a UI não expande a área de leitura
+  - Conteúdo fica invisível ou parcialmente cortado
+- Usuário **NÃO consegue saber** o que existe dentro do bloco
+
+➡️ **Registrar como BUG de UX:**
+"Blocos de conteúdo DEVEM expandir verticalmente conforme o conteúdo.
+Scroll interno oculto ou conteúdo cortado é FAIL."
+
+### D) Feedback Insuficiente Durante Execuções Longas (SSE)
+- Durante longas execuções (~15 minutos):
+  - Progresso fica visualmente parado (ex.: 35%)
+  - Backend continua ativo via keepalive SSE
+  - Usuário não sabe se travou ou está processando
+- Console mostra atividade, mas UI não comunica progresso perceptível
+
+➡️ **Registrar explicitamente:**
+"UX deve fornecer feedback perceptível contínuo durante longas etapas,
+mesmo quando percentual não muda."
+
+**⚠️ Nenhum desses pontos é bug funcional.**  
+São problemas de experiência do usuário que precisam ser refinados.
 
 ---
 
@@ -128,4 +175,4 @@ Só pode ser executado após:
 ## 🧭 Regra Final
 
 **Produto já funciona.**  
-Esta demanda existe para refinar a experiência, não para "consertar".
+Esta demanda existe para eliminar confusão, não para mudar lógica, pipeline ou garantias.
