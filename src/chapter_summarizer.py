@@ -10,6 +10,7 @@ from typing import List, Dict, Optional, Tuple
 import asyncio
 import logging
 import re
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -547,23 +548,101 @@ RESUMO:"""
         
         return response.strip()
 
+    def _build_addendum_items_list(
+        self,
+        chapter: 'Chapter',
+        missing_items: List['RecallSetItem']
+    ) -> str:
+        """
+        Constrói lista formatada de itens faltantes para o prompt do addendum.
+        
+        Clean Code: Função pequena e focada, extraída para melhorar legibilidade.
+        
+        Args:
+            chapter: Objeto Chapter
+            missing_items: Lista de RecallSetItem que faltam marcadores
+            
+        Returns:
+            String formatada com lista de itens
+        """
+        items_list = []
+        for item in missing_items:
+            chunks_str = ','.join(map(str, item.source_chunks))
+            item_hash = item.item_id.split(':')[-1]
+            items_list.append(
+                f"- {item.content} [[RS:cap{chapter.number}:{item_hash}|chunks:{chunks_str}]]"
+            )
+        return '\n'.join(items_list)
+
+    def _build_addendum_prompt(
+        self,
+        missing_items: List['RecallSetItem'],
+        items_text: str,
+        attempt_number: int = 1
+    ) -> str:
+        """
+        Constrói prompt melhorado para geração de addendum.
+        
+        Clean Code: Função pequena e focada, separa construção de prompt.
+        Melhora: Prompt mais específico e direto, com exemplos explícitos.
+        
+        Args:
+            missing_items: Lista de itens faltantes
+            items_text: Texto formatado com lista de itens
+            attempt_number: Número da tentativa (para estratégias diferentes)
+            
+        Returns:
+            String do prompt formatado
+        """
+        if attempt_number == 1:
+            # Estratégia 1: Prompt direto e específico
+            prompt = f"""Você DEVE gerar EXATAMENTE {len(missing_items)} bullets abaixo.
+Cada bullet DEVE conter o marcador EXATO mostrado.
+
+**FORMATO OBRIGATÓRIO** (copie exatamente):
+{items_text}
+
+**REGRAS CRÍTICAS**:
+1. Gere EXATAMENTE {len(missing_items)} bullets (um por item acima)
+2. Cada bullet DEVE ter o marcador EXATO: [[RS:cap...|chunks:...]]
+3. Cada bullet DEVE começar com "- " (hífen e espaço)
+4. NÃO altere os marcadores, apenas copie-os exatamente como mostrado
+5. Adicione uma frase curta (10-20 palavras) sobre o item ANTES do marcador
+
+**EXEMPLO CORRETO**:
+- A dopamina é importante. [[RS:cap2:09d6f1|chunks:1,2]]
+
+BULLETS (um por linha):"""
+        else:
+            # Estratégia 2 (fallback): Ainda mais simples e direto
+            prompt = f"""COPIE EXATAMENTE os {len(missing_items)} bullets abaixo, incluindo os marcadores EXATOS:
+
+{items_text}
+
+**INSTRUÇÃO SIMPLES**: Copie cada linha acima, adicione uma frase curta antes do marcador, e retorne.
+
+BULLETS:"""
+        
+        return prompt
+
     async def _generate_missing_markers_addendum(
         self,
         chapter: 'Chapter',
         missing_items: List['RecallSetItem'],
-        full_text: str
+        full_text: str,
+        attempt_number: int = 1
     ) -> str:
         """
         Gera addendum com marcadores apenas para itens faltantes.
         
-        Estratégia A: Em vez de regenerar o resumo inteiro, gera apenas
-        bullets para os itens que faltam marcadores, tornando a tarefa muito
-        mais simples para o LLM.
+        Estratégia A (melhorada): Prompt mais específico e direto, com fallback.
+        Gate Z10: Clean Code - função pequena, responsabilidade única.
         
         Args:
             chapter: Objeto Chapter
             missing_items: Lista de RecallSetItem que faltam marcadores
             full_text: Texto completo do livro (não usado, mas mantido para compatibilidade)
+            attempt_number: Número da tentativa (1 = normal, 2+ = fallback)
             
         Returns:
             Texto do addendum com bullets e marcadores
@@ -572,39 +651,75 @@ RESUMO:"""
             return ""
         
         # Construir lista de itens faltantes
-        items_list = []
-        for item in missing_items:
-            chunks_str = ','.join(map(str, item.source_chunks))
-            item_hash = item.item_id.split(':')[-1]
-            items_list.append(
-                f"- {item.content} [[RS:cap{chapter.number}:{item_hash}|chunks:{chunks_str}]]"
-            )
+        items_text = self._build_addendum_items_list(chapter, missing_items)
         
-        items_text = '\n'.join(items_list)
+        # Construir prompt melhorado
+        prompt = self._build_addendum_prompt(missing_items, items_text, attempt_number)
         
-        prompt = f"""Gere EXATAMENTE {len(missing_items)} bullets, um para cada item abaixo.
-Cada bullet DEVE conter o marcador EXATO mostrado e uma frase curta (10-20 palavras) sobre o item.
-
-Itens obrigatórios:
-{items_text}
-
-**REGRAS ABSOLUTAS**:
-1. Gere EXATAMENTE {len(missing_items)} bullets (não mais, não menos)
-2. Cada bullet DEVE ter o marcador EXATO no formato mostrado
-3. Cada bullet DEVE começar com "- " (hífen e espaço)
-4. Não escreva nada além dos bullets
-
-BULLETS:"""
+        # System message mais específico
+        system_message = (
+            "Você é um gerador de bullets concisos. "
+            "Sua única tarefa é retornar bullets com marcadores EXATOS no formato solicitado. "
+            "NÃO adicione texto explicativo, apenas os bullets."
+        )
+        
+        logger.info(
+            f"Gerando addendum (tentativa {attempt_number}) para capítulo {chapter.number} "
+            f"com {len(missing_items)} itens faltantes: {[item.item_id for item in missing_items]}"
+        )
         
         from summarizer import SummarySpecs
         response = await self.client.complete(
-            system_message="Você é um gerador de bullets concisos. Retorne apenas os bullets solicitados, sem texto adicional.",
+            system_message=system_message,
             user_message=prompt,
             max_output_tokens=500,
-            temperature=0.2  # Muito baixa para garantir precisão
+            temperature=0.1 if attempt_number == 1 else 0.0  # Mais determinístico no fallback
         )
         
-        return response.strip()
+        addendum_text = response.strip()
+        
+        # Log detalhado para debug
+        logger.debug(
+            f"Addendum gerado (tentativa {attempt_number}) para capítulo {chapter.number}:\n"
+            f"{addendum_text[:200]}..."  # Primeiros 200 chars para não poluir logs
+        )
+        
+        return addendum_text
+
+    def _validate_addendum_contains_markers(
+        self,
+        addendum_text: str,
+        missing_item_ids: List[str]
+    ) -> Tuple[bool, List[str]]:
+        """
+        Valida se o addendum gerado contém os marcadores esperados.
+        
+        Clean Code: Função pequena e focada, validação separada.
+        Gate Z10: Teste antes de usar (validação explícita).
+        
+        Args:
+            addendum_text: Texto do addendum gerado
+            missing_item_ids: Lista de item_ids que devem estar no addendum
+            
+        Returns:
+            Tupla (is_valid, missing_in_addendum)
+        """
+        import re
+        marker_pattern = r'\[\[RS:cap\d+:([a-f0-9]{6})\|chunks:[^\]]+\]\]'
+        found_hashes = set(re.findall(marker_pattern, addendum_text))
+        
+        expected_hashes = {item_id.split(':')[-1] for item_id in missing_item_ids}
+        missing_in_addendum = expected_hashes - found_hashes
+        
+        is_valid = len(missing_in_addendum) == 0
+        
+        if not is_valid:
+            logger.warning(
+                f"Addendum não contém todos os marcadores esperados. "
+                f"Faltando: {list(missing_in_addendum)} (esperado: {list(expected_hashes)})"
+            )
+        
+        return is_valid, list(missing_in_addendum)
 
     async def _audit_and_regenerate(
         self,
@@ -671,7 +786,11 @@ BULLETS:"""
         
         # Fase 2: Se ainda faltam marcadores, gerar addendum incremental
         if audit_result and audit_result.missing_markers:
-            logger.info(f"Gerando addendum para {len(audit_result.missing_markers)} itens faltantes...")
+            initial_missing_count = len(audit_result.missing_markers)
+            logger.info(
+                f"Gerando addendum para capítulo {chapter.number} com {initial_missing_count} itens faltantes: "
+                f"{audit_result.missing_markers}"
+            )
             
             # Mapear missing_markers para RecallSetItem
             missing_items = [
@@ -681,9 +800,26 @@ BULLETS:"""
             
             for addendum_attempt in range(1, max_addendums + 1):
                 addendum_count = addendum_attempt  # Rastrear quantos addendums foram usados
-                addendum = await self._generate_missing_markers_addendum(
-                    chapter, missing_items, full_text
+                
+                logger.info(
+                    f"Tentativa {addendum_attempt}/{max_addendums} de addendum para capítulo {chapter.number}. "
+                    f"Itens faltantes: {[item.item_id for item in missing_items]}"
                 )
+                
+                addendum = await self._generate_missing_markers_addendum(
+                    chapter, missing_items, full_text, attempt_number=addendum_attempt
+                )
+                
+                # Validação prévia: verificar se addendum contém marcadores esperados
+                is_valid, missing_in_addendum = self._validate_addendum_contains_markers(
+                    addendum, [item.item_id for item in missing_items]
+                )
+                
+                if not is_valid and addendum_attempt < max_addendums:
+                    logger.warning(
+                        f"Addendum {addendum_attempt} não contém todos os marcadores esperados. "
+                        f"Faltando no addendum: {missing_in_addendum}. Tentando novamente..."
+                    )
                 
                 # Anexar addendum ao resumo
                 summary_with_addendum = f"""{summary_text}
@@ -698,7 +834,9 @@ BULLETS:"""
                 )
                 
                 if audit_result.passed:
-                    logger.info(f"✓ Addendum {addendum_attempt} fechou cobertura 100%")
+                    logger.info(
+                        f"✓ Addendum {addendum_attempt} fechou cobertura 100% para capítulo {chapter.number}"
+                    )
                     return (summary_with_addendum, regeneration_count, addendum_count)
                 
                 # Se ainda faltam, atualizar missing_items para próxima tentativa
@@ -707,7 +845,16 @@ BULLETS:"""
                         item for item in recall_set.critical_items
                         if item.item_id in audit_result.missing_markers
                     ]
-                    logger.warning(f"✗ Addendum {addendum_attempt} ainda faltam {len(missing_items)} marcadores")
+                    logger.warning(
+                        f"✗ Addendum {addendum_attempt} para capítulo {chapter.number} ainda faltam "
+                        f"{len(missing_items)} marcadores: {audit_result.missing_markers}"
+                    )
+                else:
+                    # Se não há mais missing_markers mas audit não passou, pode ser outro problema
+                    logger.warning(
+                        f"✗ Addendum {addendum_attempt} para capítulo {chapter.number} não passou auditoria, "
+                        f"mas não há missing_markers. Erros: {audit_result.errors}"
+                    )
         
         # Falhou após todas as tentativas
         if audit_result:

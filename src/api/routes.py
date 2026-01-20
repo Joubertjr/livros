@@ -514,7 +514,14 @@ async def process_with_progress(
         periodic_task = asyncio.create_task(send_periodic_updates())
         
         try:
+            print(f"🔄 [PROCESSING] Iniciando pipeline robusto para {len(content_text.split())} palavras", file=sys.stderr)
             result = await summarizer.summarize_robust(content_text)
+            print(f"✅ [PROCESSING] Pipeline robusto concluído com sucesso", file=sys.stderr)
+        except Exception as e:
+            print(f"❌ [PROCESSING] Erro no pipeline robusto: {type(e).__name__}: {e}", file=sys.stderr)
+            import traceback
+            print(f"📋 [PROCESSING] Traceback:\n{traceback.format_exc()}", file=sys.stderr)
+            raise
         finally:
             # Cancelar tarefa de atualizações periódicas
             periodic_task.cancel()
