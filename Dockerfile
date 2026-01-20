@@ -27,6 +27,14 @@ COPY scripts /app/scripts
 # Copy Makefile
 COPY Makefile /app/Makefile
 
+# Copy configurações de análise estática (Gate Z10)
+COPY .flake8 /app/.flake8
+COPY pylintrc /app/pylintrc
+COPY .mypy.ini /app/.mypy.ini
+
+# Copy METODO (incluindo TDD_PROCESS.md)
+COPY METODO /app/METODO
+
 # Copy and setup entrypoint
 COPY src/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
