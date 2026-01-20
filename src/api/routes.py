@@ -175,7 +175,9 @@ async def get_result(session_id: str):
 
     state = tracker.get_state(session_id)
     if not state:
-        raise HTTPException(404, f"Session not found: {session_id}")
+        # Log para debug: verificar se sessão realmente não existe
+        print(f"[DEBUG] Session {session_id} not found in tracker. Active sessions: {list(tracker.sessions.keys())}", file=sys.stderr)
+        raise HTTPException(404, f"Session not found: {session_id}. The session may have expired or the processing may have failed silently.")
 
     # Se a sessão está completa mas não tem resultado, criar um resultado de erro
     if state.complete and not state.result:
@@ -416,6 +418,11 @@ async def process_with_progress(
     timings = {}
 
     try:
+        # Verificar se sessão existe antes de começar
+        if session_id not in tracker.sessions:
+            print(f"[ERROR] Session {session_id} not found at start of process_with_progress. Creating session.", file=sys.stderr)
+            tracker.create_session(session_id)
+        
         # Stage 1: Reading input (0-20%)
         stage_start = time.time()
         tracker.update_progress(session_id, "reading", 5, "Preparando entrada...")
