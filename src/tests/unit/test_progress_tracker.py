@@ -297,8 +297,18 @@ class TestProgressTrackerErrorHandling:
         with pytest.raises(ValueError, match="Session.*not found"):
             tracker.mark_complete("nonexistent", {})
 
-    def test_mark_error_raises_on_nonexistent_session(self, tracker):
-        """Teste: mark_error deve lançar exceção para sessão inexistente."""
-        # Act & Assert
-        with pytest.raises(ValueError, match="Session.*not found"):
-            tracker.mark_error("nonexistent", "Error message")
+    def test_mark_error_creates_session_if_not_exists(self, tracker):
+        """Teste: mark_error deve criar sessão de erro se não existir."""
+        # Arrange
+        nonexistent_id = "nonexistent-session"
+        error_message = "Error message"
+
+        # Act
+        tracker.mark_error(nonexistent_id, error_message)
+
+        # Assert
+        assert nonexistent_id in tracker.sessions
+        state = tracker.sessions[nonexistent_id]
+        assert state.stage == "error"
+        assert state.message == error_message
+        assert state.complete is True
