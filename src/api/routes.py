@@ -198,8 +198,18 @@ async def get_result(session_id: str):
             raise HTTPException(500, "Session completed but no result available")
 
     # Se ainda não está completo, retornar erro informativo
+    # IMPORTANTE: Não retornar 404 aqui - sessão existe, apenas não está completa
     if not state.complete:
-        raise HTTPException(400, f"Session not yet complete. Current stage: {state.stage}, percentage: {state.percentage}%")
+        # Retornar resposta informativa em vez de erro HTTP
+        # Frontend pode usar isso para mostrar "processando..."
+        return {
+            "session_id": session_id,
+            "status": "PROCESSING",
+            "stage": state.stage,
+            "percentage": state.percentage,
+            "message": state.message,
+            "complete": False
+        }
 
     # Se tem erro, retornar resultado de erro estruturado
     if state.stage == "error":

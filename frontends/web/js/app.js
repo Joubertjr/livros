@@ -365,6 +365,17 @@ async function fetchResults(sessionId) {
 
         const data = await response.json();
         
+        // Verificar se ainda está processando
+        if (data.status === "PROCESSING" || data.complete === false) {
+            // Processamento ainda em andamento - mostrar progresso atual
+            updateProgress(data.percentage || 0, data.message || "Processando...");
+            // Tentar novamente após alguns segundos
+            setTimeout(() => {
+                fetchResults(sessionId);
+            }, 3000);
+            return;
+        }
+        
         // Verificar se é resultado de erro
         if (data.status === "FAIL" && data.errors && data.errors.length > 0) {
             showError('Erro durante processamento: ' + data.errors.join(', '));
