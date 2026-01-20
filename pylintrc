@@ -1,0 +1,55 @@
+[MASTER]
+# Configuração Pylint para Gate Z10 - Clean Code
+# Validação automática de qualidade de código
+
+# Ignorar padrões
+ignore=CVS
+
+# Arquivos/pastas a ignorar
+ignore-patterns=
+    ^(.*/)?(__pycache__|\.pytest_cache|\.mypy_cache|venv|env|node_modules|build|dist)/.*$
+
+# Limite de linhas por função (Gate Z10: < 50 linhas)
+max-line-length=100
+
+[MESSAGES CONTROL]
+# Desabilitar avisos específicos
+disable=
+    # C0103: invalid-name (muito restritivo)
+    invalid-name,
+    # R0903: too-few-public-methods (dataclasses podem ter poucos métodos)
+    too-few-public-methods,
+    # R0913: too-many-arguments (às vezes necessário)
+    too-many-arguments,
+    # C0111: missing-docstring (não obrigatório para todos)
+    missing-docstring,
+    # R0912: too-many-branches (pode ser necessário)
+    too-many-branches,
+    # R0915: too-many-statements (coberto por max-loc-per-function)
+    too-many-statements
+
+[FORMAT]
+# Comprimento máximo de linha
+max-line-length=100
+
+[DESIGN]
+# Limite de linhas por função (Gate Z10: < 50 linhas)
+max-loc-per-function=50
+# Limite de argumentos
+max-args=10
+# Limite de atributos
+max-attributes=15
+# Limite de métodos públicos
+max-public-methods=20
+
+[REFACTORING]
+# Limite de linhas por módulo
+max-module-loc=1000
+# Limite de retornos
+max-returns=6
+# Limite de ramificações
+max-branches=15
+
+[VARIABLES]
+# Nomes permitidos para variáveis
+good-names=i,j,k,ex,Run,_,id,e,app,db

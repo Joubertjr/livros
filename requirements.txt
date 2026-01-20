@@ -23,6 +23,11 @@ pytest-cov>=4.1.0
 pytest-mock>=3.12.0
 pytest-asyncio>=0.21.0
 
+# Análise Estática (Gate Z10 - Clean Code)
+flake8>=6.1.0
+pylint>=3.0.0
+mypy>=1.7.0
+
 # Web UI - FastAPI
 fastapi>=0.104.0
 pydantic>=2.0.0  # Validação de schemas (obrigatório para SummarizeResponse)
