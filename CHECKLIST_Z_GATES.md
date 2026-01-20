@@ -436,7 +436,14 @@ Permitido SOMENTE se:
 ### Comando de Prova
 
 ```bash
+# Suite completa de testes
 docker compose exec app bash -c 'pytest -q'
+
+# Testes de integração E2E
+docker compose exec app bash -c 'pytest src/tests/integration/test_api_process_e2e.py src/tests/integration/test_sse_robustness.py src/tests/integration/test_error_recovery.py -v'
+
+# Validação completa Gate Z10
+make check-code-quality
 ```
 
 ### Z10.B — Testes de Integração End-to-End (OBRIGATÓRIO)
@@ -444,20 +451,83 @@ docker compose exec app bash -c 'pytest -q'
 **Regra Crítica:** Testes unitários isolados NÃO são suficientes. Fluxos críticos DEVEM ter testes de integração.
 
 **Fluxos críticos que DEVEM ter testes de integração:**
-- [ ] Upload → Processamento → SSE streaming → Result retrieval (happy path)
-- [ ] Erro durante processamento → Sessão preservada → Result retorna erro estruturado
-- [ ] SSE interrompido → Recuperação via /api/result funciona
-- [ ] Sessão não encontrada após erro → Tratamento adequado (não 404 silencioso)
+- [x] Upload → Processamento → SSE streaming → Result retrieval (happy path)
+- [x] Erro durante processamento → Sessão preservada → Result retorna erro estruturado
+- [x] SSE interrompido → Recuperação via /api/result funciona
+- [x] Sessão não encontrada após erro → Tratamento adequado (não 404 silencioso)
 
-**Exemplos de testes obrigatórios:**
-- `test_api_process_e2e.py` - Fluxo completo end-to-end
-- `test_sse_robustness.py` - Robustez de SSE e recuperação
-- `test_error_recovery.py` - Recuperação de erros
+**Testes obrigatórios implementados:**
+- ✅ `test_api_process_e2e.py` - Fluxo completo end-to-end (3 testes)
+- ✅ `test_sse_robustness.py` - Robustez de SSE e recuperação (4 testes)
+- ✅ `test_error_recovery.py` - Recuperação de erros (5 testes)
 
 **Comando de validação:**
 ```bash
-pytest src/tests/integration/test_api_process_e2e.py -v
+# Todos os testes E2E
+pytest src/tests/integration/test_api_process_e2e.py src/tests/integration/test_sse_robustness.py src/tests/integration/test_error_recovery.py -v
+
+# Via Makefile
+make test-e2e
 ```
+
+### Z10.C — Processo TDD Obrigatório (NOVO)
+
+**Regra Crítica:** TDD não é opcional. Teste primeiro, código depois.
+
+**Processo obrigatório:**
+1. **RED:** Teste escrito e falha (antes de qualquer código)
+2. **GREEN:** Implementação mínima (apenas para teste passar)
+3. **REFACTOR:** Clean Code (refatorar mantendo testes passando)
+
+**Documentação:**
+- `METODO/TDD_PROCESS.md` - Processo TDD canônico completo
+
+**Validação:**
+- [ ] Teste escrito antes de código
+- [ ] Teste falha antes da implementação
+- [ ] Teste passa após implementação
+- [ ] Testes de erro existem
+- [ ] Testes de integração para fluxos críticos
+
+**Comando de validação:**
+```bash
+# Verificar que testes existem para código novo
+pytest src/tests/ -v --collect-only | grep test_
+
+# Validar processo TDD
+# (validação manual - verificar que teste foi escrito antes)
+```
+
+### Z10.D — Análise Estática Automática (NOVO)
+
+**Regra Crítica:** Clean Code deve ser validado automaticamente, não apenas manualmente.
+
+**Ferramentas configuradas:**
+- ✅ `flake8` - Estilo e erros básicos
+- ✅ `pylint` - Análise de qualidade
+- ✅ `mypy` - Verificação de tipos (opcional)
+- ✅ `scripts/check_code_quality.sh` - Script de validação completa
+
+**Validações automáticas:**
+- [ ] Funções < 50 linhas (ou justificada)
+- [ ] Sem TODOs/HACKs/FIXMEs
+- [ ] Sem duplicação óbvia
+- [ ] Estilo de código consistente
+
+**Comando de validação:**
+```bash
+# Validação completa (Gate Z10)
+make check-code-quality
+
+# Ou individualmente:
+flake8 src/
+pylint src/
+```
+
+**Configuração:**
+- `.flake8` - Configuração Flake8
+- `pylintrc` - Configuração Pylint
+- `.mypy.ini` - Configuração MyPy (opcional)
 
 ### Critérios de FAIL
 
