@@ -474,7 +474,16 @@ async def process_with_progress(
 
         # Usar BookSummarizerRobust (pipeline completo com coverage_report)
         evidencias_dir = Path("/app/EVIDENCIAS")
-        summarizer = BookSummarizerRobust(evidencias_dir=str(evidencias_dir))
+        
+        # Criar coletor de metadados do processo
+        from src.process_metadata_collector import ProcessMetadataCollector
+        metadata_collector = ProcessMetadataCollector()
+        metadata_collector.start_process()
+        
+        summarizer = BookSummarizerRobust(
+            evidencias_dir=str(evidencias_dir),
+            metadata_collector=metadata_collector
+        )
 
         tracker.update_progress(session_id, "processing", 30, "Detectando capítulos...")
         await asyncio.sleep(0.3)
@@ -516,8 +525,10 @@ async def process_with_progress(
         try:
             print(f"🔄 [PROCESSING] Iniciando pipeline robusto para {len(content_text.split())} palavras", file=sys.stderr)
             result = await summarizer.summarize_robust(content_text)
+            metadata_collector.end_process()
             print(f"✅ [PROCESSING] Pipeline robusto concluído com sucesso", file=sys.stderr)
         except Exception as e:
+            metadata_collector.end_process()
             print(f"❌ [PROCESSING] Erro no pipeline robusto: {type(e).__name__}: {e}", file=sys.stderr)
             import traceback
             print(f"📋 [PROCESSING] Traceback:\n{traceback.format_exc()}", file=sys.stderr)
@@ -672,7 +683,8 @@ async def process_with_progress(
                 tracker_info=result.get('tracker_info'),
                 total_words_input=len(content_text.split()) if content_text else None,
                 total_words_output=len(result.get('summary', '').split()) if result.get('summary') else None,
-                processing_time=total_time
+                processing_time=total_time,
+                process_metadata=metadata_collector.to_dict()  # NOVO: dados detalhados do processo
             )
             
             # Salvar resumo

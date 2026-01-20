@@ -48,10 +48,17 @@ class ChapterSummarizer:
     depois combina em um resumo executivo do livro completo.
     """
 
-    def __init__(self):
+    def __init__(self, metadata_collector=None):
+        """
+        Inicializa o ChapterSummarizer.
+        
+        Args:
+            metadata_collector: Coletor de metadados do processo (opcional)
+        """
         # Import here to avoid circular import
         from summarizer import AsyncOpenAIClient
         self.client = AsyncOpenAIClient()
+        self.metadata_collector = metadata_collector
 
     async def summarize_chapter(
         self,
@@ -815,10 +822,28 @@ BULLETS:"""
                     addendum, [item.item_id for item in missing_items]
                 )
                 
+                # Determinar estratégia e temperatura baseado no número da tentativa
+                prompt_strategy = "direct" if addendum_attempt == 1 else "fallback"
+                temperature = 0.1 if addendum_attempt == 1 else 0.0
+                
                 if not is_valid and addendum_attempt < max_addendums:
                     logger.warning(
                         f"Addendum {addendum_attempt} não contém todos os marcadores esperados. "
                         f"Faltando no addendum: {missing_in_addendum}. Tentando novamente..."
+                    )
+                
+                # Coletar dados do addendum (antes de anexar)
+                if self.metadata_collector:
+                    self.metadata_collector.log_addendum_attempt(
+                        chapter_number=chapter.number,
+                        attempt_number=addendum_attempt,
+                        missing_item_ids=[item.item_id for item in missing_items],
+                        addendum_content=addendum,
+                        prompt_strategy=prompt_strategy,
+                        temperature=temperature,
+                        validation_passed=is_valid,
+                        validation_missing=missing_in_addendum,
+                        result="pending"  # Será atualizado após auditoria
                     )
                 
                 # Anexar addendum ao resumo
@@ -837,6 +862,14 @@ BULLETS:"""
                     logger.info(
                         f"✓ Addendum {addendum_attempt} fechou cobertura 100% para capítulo {chapter.number}"
                     )
+                    # Atualizar resultado do addendum no coletor
+                    if self.metadata_collector:
+                        chapter_data = self.metadata_collector.get_chapter_data(chapter.number)
+                        if chapter_data.addendum_attempts:
+                            chapter_data.addendum_attempts[-1].result = "passed"
+                        self.metadata_collector.finalize_chapter(
+                            chapter.number, regeneration_count, addendum_count, []
+                        )
                     return (summary_with_addendum, regeneration_count, addendum_count)
                 
                 # Se ainda faltam, atualizar missing_items para próxima tentativa
@@ -857,6 +890,18 @@ BULLETS:"""
                     )
         
         # Falhou após todas as tentativas
+        final_missing = audit_result.missing_markers if audit_result else []
+        if self.metadata_collector:
+            self.metadata_collector.finalize_chapter(
+                chapter.number, regeneration_count, addendum_count, final_missing
+            )
+            # Atualizar resultado final dos addendums que falharam
+            chapter_data = self.metadata_collector.get_chapter_data(chapter.number)
+            if chapter_data.addendum_attempts:
+                for attempt in chapter_data.addendum_attempts:
+                    if attempt.result == "pending":
+                        attempt.result = "failed"
+        
         if audit_result:
             raise CoverageError(
                 f"Capítulo {chapter.number}: Cobertura não atingiu 100% após {max_attempts} tentativas de resumo "

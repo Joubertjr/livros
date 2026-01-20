@@ -43,7 +43,8 @@ class BookSummarizerRobust:
     def __init__(
         self,
         evidencias_dir: str = "EVIDENCIAS",
-        use_chapters: bool = True
+        use_chapters: bool = True,
+        metadata_collector=None
     ):
         """
         Inicializa o summarizer robusto.
@@ -51,15 +52,17 @@ class BookSummarizerRobust:
         Args:
             evidencias_dir: Diretório para salvar evidências
             use_chapters: Se True, detecta capítulos antes de processar
+            metadata_collector: Coletor de metadados do processo (opcional)
         """
         self.evidencias_dir = Path(evidencias_dir)
         self.evidencias_dir.mkdir(parents=True, exist_ok=True)
         self.use_chapters = use_chapters
+        self.metadata_collector = metadata_collector
         
         # Inicializar componentes
         self.markdown_parser = MarkdownParser()
         self.chapter_detector = ChapterDetector()
-        self.chapter_summarizer = ChapterSummarizer()
+        self.chapter_summarizer = ChapterSummarizer(metadata_collector=metadata_collector)
         self.evidence_generator = EvidenceGeneratorRobust(output_dir=str(self.evidencias_dir))
         self.quality_gate = QualityGate()
     

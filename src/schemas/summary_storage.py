@@ -63,6 +63,55 @@ class SummaryStorage(BaseModel):
     total_words_output: Optional[int] = Field(None, description="Total de palavras no output")
     processing_time: Optional[float] = Field(None, description="Tempo de processamento em segundos")
     
+    # Dados detalhados do processo (rastreabilidade completa)
+    process_metadata: Optional[Dict] = Field(None, description="Metadados detalhados do processo de sumarização")
+    """
+    Estrutura esperada de process_metadata:
+    {
+        "chapters": [
+            {
+                "chapter_number": "1",
+                "chapter_title": "Título",
+                "regeneration_attempts": [
+                    {
+                        "attempt_number": 1,
+                        "timestamp": "2026-01-20T10:00:00",
+                        "missing_markers": ["RS:cap1:abc123"],
+                        "prompt_strategy": "standard",
+                        "temperature": 0.3,
+                        "result": "failed" | "passed",
+                        "summary_preview": "Primeiros 200 chars..."
+                    }
+                ],
+                "addendum_attempts": [
+                    {
+                        "attempt_number": 1,
+                        "timestamp": "2026-01-20T10:05:00",
+                        "missing_item_ids": ["RS:cap1:abc123"],
+                        "prompt_strategy": "direct" | "fallback",
+                        "temperature": 0.1 | 0.0,
+                        "addendum_content": "Conteúdo do addendum gerado",
+                        "validation_passed": true | false,
+                        "validation_missing": ["RS:cap1:abc123"],
+                        "result": "failed" | "passed"
+                    }
+                ],
+                "final_regeneration_count": 3,
+                "final_addendum_count": 2,
+                "final_missing_markers": []
+            }
+        ],
+        "logs": [
+            {
+                "timestamp": "2026-01-20T10:00:00",
+                "level": "INFO" | "WARNING" | "ERROR",
+                "chapter": "1" | null,
+                "message": "Mensagem do log"
+            }
+        ]
+    }
+    """
+    
     class Config:
         json_schema_extra = {
             "example": {
