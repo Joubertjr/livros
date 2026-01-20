@@ -411,6 +411,8 @@ pytest src/tests/unit/test_api_schema_gate_z9.py src/tests/integration/test_api_
 - [ ] Z10.8: Frontend e backend permanecem desacoplados
 - [ ] Z10.9: `pytest -q` passa (0 failed)
 - [ ] Z10.10: A implementação parte do resultado final esperado (END-FIRST), não da conveniência técnica
+- [ ] **Z10.11: Testes de integração end-to-end cobrem fluxos críticos (NOVO - OBRIGATÓRIO)**
+- [ ] **Z10.12: Cenários de erro e recuperação são testados (NOVO - OBRIGATÓRIO)**
 
 ### Z10.A — Heurísticas Objetivas (Validação Manual Obrigatória)
 
@@ -421,6 +423,8 @@ Heurísticas objetivas (validação manual), com prova via comandos no Docker:
 - [ ] **Duplicação óbvia (copy/paste)** → FAIL (extrair função comum)
 - [ ] **RED não documentado como "por design"** → FAIL (é dívida técnica)
 - [ ] **TODO|HACK|FIXME no código** → FAIL (remover ou justificar)
+- [ ] **Fluxo crítico sem teste de integração end-to-end** → FAIL (criar teste obrigatório)
+- [ ] **Cenário de erro não testado** → FAIL (criar teste obrigatório)
 
 **Exceção para Função > 50 linhas (Canônica)**:
 
@@ -435,6 +439,26 @@ Permitido SOMENTE se:
 docker compose exec app bash -c 'pytest -q'
 ```
 
+### Z10.B — Testes de Integração End-to-End (OBRIGATÓRIO)
+
+**Regra Crítica:** Testes unitários isolados NÃO são suficientes. Fluxos críticos DEVEM ter testes de integração.
+
+**Fluxos críticos que DEVEM ter testes de integração:**
+- [ ] Upload → Processamento → SSE streaming → Result retrieval (happy path)
+- [ ] Erro durante processamento → Sessão preservada → Result retorna erro estruturado
+- [ ] SSE interrompido → Recuperação via /api/result funciona
+- [ ] Sessão não encontrada após erro → Tratamento adequado (não 404 silencioso)
+
+**Exemplos de testes obrigatórios:**
+- `test_api_process_e2e.py` - Fluxo completo end-to-end
+- `test_sse_robustness.py` - Robustez de SSE e recuperação
+- `test_error_recovery.py` - Recuperação de erros
+
+**Comando de validação:**
+```bash
+pytest src/tests/integration/test_api_process_e2e.py -v
+```
+
 ### Critérios de FAIL
 
 Gate Z10 FALHA se:
@@ -446,8 +470,13 @@ Gate Z10 FALHA se:
 - Regra de negócio duplicada
 - RED não documentado como "por design"
 - Implementação parte de conveniência técnica, não do resultado final (viola END-FIRST)
+- **Fluxo crítico sem teste de integração end-to-end (NOVO)**
+- **Cenário de erro não testado em integração (NOVO)**
 
 **Regra Crítica:** Gate Z10 falhou = PR bloqueado, mesmo com coverage 100%.
+
+**Regra Canônica Atualizada:**
+> "Teste unitário sem teste de integração é código isolado, não sistema funcional."
 
 ---
 
