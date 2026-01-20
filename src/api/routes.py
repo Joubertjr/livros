@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Tuple
-from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException, Query
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sse_starlette.sse import EventSourceResponse
@@ -24,6 +24,14 @@ from exporter import export_summaries
 from evidence_generator_robust import EvidenceGeneratorRobust
 from api.progress_tracker import get_progress_tracker
 from api.schemas import SummarizeResponse, HealthResponse
+from storage import get_storage_manager
+from schemas.summary_storage import (
+    SummaryStorage,
+    PipelineType,
+    SummaryListResponse,
+    SummaryDetailResponse,
+    FeedbackEntry
+)
 
 # Setup
 router = APIRouter()
@@ -543,6 +551,42 @@ async def process_with_progress(
         )
 
         tracker.mark_complete(session_id, result)
+        
+        # F4: Persistir resumo automaticamente após conclusão
+        try:
+            storage = get_storage_manager()
+            
+            # Criar objeto SummaryStorage a partir do resultado
+            summary_storage = SummaryStorage(
+                summary_id=session_id,  # Usar session_id como summary_id
+                title=filename or "Resumo de texto",  # Título baseado no arquivo ou padrão
+                created_at=datetime.now(),
+                pipeline_type=PipelineType.ROBUST,  # Pipeline atual é sempre robust
+                input_text=content_text if not filename else None,
+                input_file=filename,
+                summary=result.get('summary'),
+                summaries=summaries,
+                coverage_report=coverage_report,
+                addendum_metrics=addendum_metrics,
+                validation_report=result.get('validation_report'),
+                validation=result.get('validation'),
+                exported_files=exported_files,
+                referencias=result.get('referencias'),
+                tracker_info=result.get('tracker_info'),
+                total_words_input=len(content_text.split()) if content_text else None,
+                total_words_output=len(result.get('summary', '').split()) if result.get('summary') else None,
+                processing_time=total_time
+            )
+            
+            # Salvar resumo
+            saved_path = storage.save_summary(summary_storage)
+            print(f"✅ Resumo persistido: {saved_path}", file=sys.stderr)
+            
+        except Exception as storage_error:
+            # Não falhar o processamento se a persistência falhar
+            print(f"⚠️ Erro ao persistir resumo: {storage_error}", file=sys.stderr)
+            import traceback
+            traceback.print_exc(file=sys.stderr)
 
     except Exception as e:
         # Handle errors
@@ -562,3 +606,153 @@ async def process_with_progress(
                 temp_file_path.unlink()
             except Exception as e:
                 print(f"Failed to delete temp file {temp_file_path}: {e}")
+
+
+# F5: API de Histórico
+@router.get("/api/summaries", response_model=SummaryListResponse)
+async def list_summaries(
+    pipeline_type: Optional[str] = None,
+    limit: Optional[int] = None,
+    offset: int = 0
+):
+    """
+    Lista resumos persistidos.
+    
+    Args:
+        pipeline_type: Filtrar por tipo de pipeline (robust, standard, experimental)
+        limit: Limite de resultados
+        offset: Offset para paginação
+    """
+    try:
+        storage = get_storage_manager()
+        
+        # Converter pipeline_type string para enum
+        pipeline_enum = None
+        if pipeline_type:
+            try:
+                pipeline_enum = PipelineType(pipeline_type)
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Tipo de pipeline inválido: {pipeline_type}. Use: robust, standard, experimental"
+                )
+        
+        # Listar resumos
+        summaries = storage.list_summaries(
+            pipeline_type=pipeline_enum,
+            limit=limit,
+            offset=offset
+        )
+        
+        # Converter para dict (apenas metadados para listagem)
+        summaries_dict = []
+        for summary in summaries:
+            summaries_dict.append({
+                "summary_id": summary.summary_id,
+                "title": summary.title,
+                "created_at": summary.created_at.isoformat() if summary.created_at else None,
+                "pipeline_type": summary.pipeline_type.value,
+                "input_file": summary.input_file,
+                "total_words_input": summary.total_words_input,
+                "total_words_output": summary.total_words_output,
+                "processing_time": summary.processing_time
+            })
+        
+        # Contar total (sem paginação)
+        total = len(storage.list_summaries(pipeline_type=pipeline_enum))
+        
+        return SummaryListResponse(
+            summaries=summaries_dict,
+            total=total,
+            page=offset // (limit or 10) + 1 if limit else None,
+            page_size=limit
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao listar resumos: {str(e)}")
+
+
+@router.get("/api/summaries/{summary_id}", response_model=SummaryDetailResponse)
+async def get_summary(summary_id: str):
+    """
+    Busca um resumo específico por ID.
+    
+    Args:
+        summary_id: ID do resumo
+    """
+    try:
+        storage = get_storage_manager()
+        
+        # Carregar resumo
+        summary = storage.load_summary(summary_id)
+        if not summary:
+            raise HTTPException(status_code=404, detail=f"Resumo não encontrado: {summary_id}")
+        
+        # Carregar feedback associado
+        feedback = storage.load_feedback(summary_id)
+        
+        return SummaryDetailResponse(
+            summary=summary,
+            feedback=feedback
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao buscar resumo: {str(e)}")
+
+
+@router.post("/api/summaries/{summary_id}/feedback")
+async def submit_feedback(
+    summary_id: str,
+    feedback_type: str = Form(...),
+    message: str = Form(...)
+):
+    """
+    Registra feedback vinculado a um resumo.
+    
+    Regra Canônica: "Feedback sem rastreabilidade é ruído."
+    
+    Args:
+        summary_id: ID do resumo
+        feedback_type: Tipo de feedback (dúvida, erro, sugestão, elogio)
+        message: Mensagem do feedback
+    """
+    try:
+        storage = get_storage_manager()
+        
+        # Verificar se resumo existe
+        summary = storage.load_summary(summary_id)
+        if not summary:
+            raise HTTPException(status_code=404, detail=f"Resumo não encontrado: {summary_id}")
+        
+        # Validar tipo de feedback
+        valid_types = ["dúvida", "erro", "sugestão", "elogio"]
+        if feedback_type not in valid_types:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Tipo de feedback inválido: {feedback_type}. Use: {', '.join(valid_types)}"
+            )
+        
+        # Criar feedback
+        feedback = FeedbackEntry(
+            feedback_id=str(uuid.uuid4()),
+            summary_id=summary_id,
+            feedback_type=feedback_type,
+            message=message,
+            created_at=datetime.now()
+        )
+        
+        # Salvar feedback
+        saved_path = storage.save_feedback(feedback)
+        
+        return {
+            "status": "success",
+            "feedback_id": feedback.feedback_id,
+            "message": "Feedback registrado com sucesso",
+            "saved_path": saved_path
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao registrar feedback: {str(e)}")

@@ -11,6 +11,7 @@ let progressUpdateTimer = null;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
+    loadHistory(); // F7: Carregar histórico ao inicializar
 });
 
 function setupEventListeners() {
@@ -244,6 +245,12 @@ function connectProgressStream(sessionId) {
             if (data.complete) {
                 console.log('Processing complete');
                 eventSource.close();
+                
+                // F7: Recarregar histórico após conclusão
+                setTimeout(() => {
+                    loadHistory();
+                }, 2000);
+                
                 if (data.error) {
                     showError(data.message);
                 } else {
@@ -1019,6 +1026,120 @@ function displayObservabilityMetrics(data) {
 }
 
 // Reset Form
+// F7: Carregar histórico de resumos
+async function loadHistory() {
+    try {
+        const response = await fetch('/api/summaries');
+        const data = await response.json();
+        
+        const historyList = document.getElementById('history-list');
+        const historyLoading = document.getElementById('history-loading');
+        const historyEmpty = document.getElementById('history-empty');
+        
+        historyLoading.style.display = 'none';
+        
+        if (data.summaries && data.summaries.length > 0) {
+            historyList.style.display = 'block';
+            historyEmpty.style.display = 'none';
+            
+            // Renderizar lista usando componentes do Design System
+            historyList.innerHTML = data.summaries.map(summary => {
+                const date = new Date(summary.created_at);
+                const dateStr = date.toLocaleString('pt-BR');
+                
+                return `
+                    <div class="card" style="margin-bottom: var(--spacing-lg);">
+                        <div class="card-content">
+                            <h3 style="font-size: var(--font-size-xl); margin-bottom: var(--spacing-md);">
+                                ${summary.title || 'Resumo sem título'}
+                            </h3>
+                            <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-bottom: var(--spacing-md);">
+                                <span class="badge badge-status-info">${summary.pipeline_type}</span>
+                                <span style="color: var(--color-text-secondary); font-size: var(--font-size-sm);">
+                                    📅 ${dateStr}
+                                </span>
+                            </div>
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm);">
+                                    📊 ${summary.total_words_input || 0} palavras → ${summary.total_words_output || 0} palavras
+                                    ${summary.processing_time ? ` | ⏱️ ${summary.processing_time.toFixed(1)}s` : ''}
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: var(--spacing-md);">
+                                <button class="btn btn-primary" onclick="viewSummary('${summary.summary_id}')">
+                                    👁️ Ver Detalhes
+                                </button>
+                                <button class="btn btn-secondary" onclick="submitFeedbackForSummary('${summary.summary_id}')">
+                                    💬 Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            historyList.style.display = 'none';
+            historyEmpty.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar histórico:', error);
+        document.getElementById('history-loading').innerHTML = 
+            '<p style="color: var(--color-error);">Erro ao carregar histórico. Tente novamente.</p>';
+    }
+}
+
+// F7: Ver detalhes de um resumo
+async function viewSummary(summaryId) {
+    try {
+        const response = await fetch(`/api/summaries/${summaryId}`);
+        const data = await response.json();
+        
+        // Criar modal ou navegar para página de detalhes
+        // Por enquanto, mostrar em alert (pode ser melhorado com modal)
+        alert(`Resumo: ${data.summary.title || 'Sem título'}\n\nCriado em: ${new Date(data.summary.created_at).toLocaleString('pt-BR')}\n\nPipeline: ${data.summary.pipeline_type}\n\nFeedback: ${data.feedback.length} registro(s)`);
+    } catch (error) {
+        console.error('Erro ao carregar resumo:', error);
+        alert('Erro ao carregar detalhes do resumo.');
+    }
+}
+
+// F7: Submeter feedback para um resumo
+function submitFeedbackForSummary(summaryId) {
+    const feedbackType = prompt('Tipo de feedback:\n1. dúvida\n2. erro\n3. sugestão\n4. elogio\n\nDigite o número:');
+    const feedbackTypes = { '1': 'dúvida', '2': 'erro', '3': 'sugestão', '4': 'elogio' };
+    
+    if (!feedbackType || !feedbackTypes[feedbackType]) {
+        return;
+    }
+    
+    const message = prompt('Mensagem do feedback:');
+    if (!message) {
+        return;
+    }
+    
+    // Submeter feedback
+    const formData = new FormData();
+    formData.append('feedback_type', feedbackTypes[feedbackType]);
+    formData.append('message', message);
+    
+    fetch(`/api/summaries/${summaryId}/feedback`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('✅ Feedback registrado com sucesso!');
+        } else {
+            alert('Erro ao registrar feedback.');
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao registrar feedback:', error);
+        alert('Erro ao registrar feedback.');
+    });
+}
+
 function resetForm() {
     // Clear form
     clearFile();
