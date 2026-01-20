@@ -53,7 +53,7 @@ class SummaryStorageManager:
             Caminho do arquivo salvo
         """
         # Garantir que summary_id existe
-        if not summary.summary_id:
+        if not summary.summary_id or summary.summary_id == "":
             summary.summary_id = str(uuid.uuid4())
         
         # Atualizar timestamps

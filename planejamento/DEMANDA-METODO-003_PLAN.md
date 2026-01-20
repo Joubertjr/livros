@@ -3,7 +3,7 @@
 **Demanda:** DEMANDA-METODO-003_GOVERNANCA_CICLO_VIDA_ARTEFATOS.md  
 **Método:** END-FIRST v2  
 **Data:** 2026-01-19  
-**Status:** F-1 PENDENTE DE APROVAÇÃO  
+**Status:** ✅ F-1 APROVADA  
 **Repositório:** https://github.com/Joubertjr/livros
 
 ---
@@ -132,10 +132,12 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 **END:** Plano aprovado e pronto para execução
 
 **DONE WHEN:**
-- Checklist completo verificado
-- Nenhum comando executado
-- Nenhum código alterado
-- Declaração explícita: "F-1 aprovada"
+- ✅ Checklist completo verificado
+- ✅ Nenhum comando executado
+- ✅ Nenhum código alterado
+- ✅ Declaração explícita: "F-1 APROVADA" (recebida do CEO em 2026-01-19)
+
+**STATUS:** ✅ COMPLETA — F-1 aprovada e pronta para execução F1-F6
 
 **PROIBIÇÕES:**
 - ❌ Executar comandos
@@ -154,10 +156,11 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 - Papel de cada artefato no ciclo está definido
 - Documento conceitual criado (governança do método, não imposição de filesystem)
 
-**PROVA CONCEITUAL (Documental):**
-- Documento de ciclo de vida existe e é autoexplicativo
-- Documento descreve ciclo sem depender de paths específicos
-- Documento pode ser aplicado a qualquer projeto que use END-FIRST
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Documento existe (verificável: arquivo existe)
+- ✅ Documento contém seção explícita descrevendo o ciclo DEMANDA → F-1 → Execução → Evidências → Histórico (verificável: grep por termos)
+- ✅ Documento não menciona paths específicos (verificável: ausência de paths absolutos ou relativos)
+- ✅ Documento menciona conceitos do método (DEMANDA, F-1, Evidências, Histórico) sem depender de estrutura de pastas (verificável: grep por conceitos)
 
 **NOTA METODOLÓGICA:**
 - A criação de documentos canônicos é parte da governança conceitual do método
@@ -182,10 +185,11 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 - Fronteiras entre artefatos são inequívocas
 - Documento de fronteiras semânticas criado (conceitual, independente de filesystem)
 
-**PROVA CONCEITUAL (Documental):**
-- Documento de fronteiras existe e define diferenças semânticas
-- Documento não depende de estrutura de pastas específica
-- Fronteiras são compreensíveis sem conhecimento de paths
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Documento existe (verificável: arquivo existe)
+- ✅ Documento contém seção explícita para cada tipo de artefato (DEMANDA, F-1, EVIDÊNCIAS, HISTÓRICO) com propósito único (verificável: grep por cada tipo)
+- ✅ Documento define critério de transição para "não-ativo" para cada tipo (verificável: grep por "transição" ou "não-ativo")
+- ✅ Documento não menciona paths específicos (verificável: ausência de paths)
 
 **REGRAS CANÔNICAS APLICADAS:**
 - "Demanda não é histórico. Histórico não governa execução."
@@ -204,10 +208,11 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 - Exemplos concretos de ambiguidade documentados
 - Documento de análise criado (conceitual, com exemplos ilustrativos)
 
-**PROVA CONCEITUAL (Documental):**
-- Documento de análise existe e identifica fricções conceituais
-- Análise é aplicável a outros projetos (não acoplada a estrutura específica)
-- Exemplos ilustram conceitos, não impõem implementação
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Documento existe (verificável: arquivo existe)
+- ✅ Documento contém seção "Pontos de Fricção" ou equivalente listando ambiguidades identificadas (verificável: grep por "fricção" ou "ambiguidade")
+- ✅ Documento não menciona paths específicos do projeto atual (verificável: ausência de paths)
+- ✅ Exemplos (se houver) são marcados como "ilustrativos" ou "exemplo" (verificável: grep por "exemplo" ou "ilustrativo")
 
 **REGRAS CANÔNICAS APLICADAS:**
 - "Se é preciso explicar onde algo se encaixa, o método falhou."
@@ -224,10 +229,11 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 - F-1 continua sendo artefato bloqueante
 - Documento de validação criado (conceitual)
 
-**PROVA CONCEITUAL (Documental):**
-- Documento de validação existe e demonstra alinhamento conceitual
-- Validação não depende de paths específicos
-- Alinhamento é verificável sem conhecimento de filesystem
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Documento existe (verificável: arquivo existe)
+- ✅ Documento menciona explicitamente "END-FIRST v2" e "Pilar END-FIRST" (verificável: grep por termos)
+- ✅ Documento declara explicitamente "F-1 continua sendo artefato bloqueante" (verificável: grep por "F-1" e "bloqueante")
+- ✅ Documento não menciona paths específicos (verificável: ausência de paths)
 
 **REGRAS CANÔNICAS APLICADAS:**
 - "Planejamento é artefato de primeira classe. Executor apenas executa."
@@ -240,14 +246,14 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 
 **DONE WHEN:**
 - Documento canônico principal criado (governança conceitual)
-- Documento integrado ao método (referenciado em documentos canônicos do método)
-- Documentação é autoexplicativa (não requer explicação verbal)
+- Documento integrado ao método (critério binário definido abaixo)
 - Evidência de conformidade gerada (documental, não automação)
 
-**PROVA CONCEITUAL (Documental):**
-- Documento canônico existe e é autoexplicativo
-- Documento está integrado ao método (referências conceituais, não paths)
-- Evidência documental prova conformidade (criar arquivo markdown ≠ automação)
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Documento canônico principal existe (verificável: arquivo existe)
+- ✅ **INTEGRAÇÃO AO MÉTODO (Critério Binário):** Documento menciona explicitamente pelo menos um documento canônico do método por **nome** (não por path). Exemplos válidos: "END-FIRST v2", "Pilar END-FIRST", "Template Canônico de Demanda" (verificável: grep por nomes de documentos canônicos)
+- ✅ Evidência documental existe (verificável: arquivo existe)
+- ✅ Evidência lista status de cada fase F1-F6 (verificável: grep por "F1", "F2", etc.)
 
 **DIFERENCIAÇÃO METODOLÓGICA:**
 - **Evidência documental** (criar arquivos markdown): ✅ Permitido (é documentação)
@@ -269,10 +275,10 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 - Nenhuma violação de frase canônica identificada
 - Status atualizado para "✅ CONCLUÍDA"
 
-**PROVA CONCEITUAL (Documental):**
-- Todos os documentos conceituais existem
-- Evidência documental prova conformidade
-- Nenhuma fricção metodológica identificada
+**PROVA CONCEITUAL (Documental - Binária):**
+- ✅ Todos os 4 documentos conceituais existem (verificável: 4 arquivos existem)
+- ✅ Evidência documental existe (verificável: arquivo existe)
+- ✅ Evidência declara status "✅ CONCLUÍDA" ou equivalente (verificável: grep por "CONCLUÍDA" ou "PASS")
 
 **REGRAS CANÔNICAS APLICADAS:**
 - "Quando o ciclo de vida é claro, a organização deixa de ser um problema."
@@ -281,69 +287,64 @@ Estas frases são canônicas, reutilizáveis e bloqueantes:
 
 ## 📊 ESTRUTURA DE DOCUMENTOS A CRIAR
 
-### Documentos Conceituais (Governança do Método)
+### SEPARAÇÃO METODOLÓGICA: Governança do Método vs Implementação Operacional
 
-**NOTA METODOLÓGICA:**
-- A criação de documentos canônicos é parte da **governança conceitual** do método
-- Paths específicos (ex: `/METODO/...`) são **implementação operacional** deste projeto**
-- O método em si **não impõe estrutura de pastas**; ele governa conceitos
-- Outros projetos podem implementar a mesma governança conceitual com estrutura diferente
+**ESCOPO DO MÉTODO (Governança Conceitual):**
+- Criar documentos que definem conceitos do ciclo de vida
+- Documentos são **independentes de filesystem**
+- Documentos mencionam conceitos (DEMANDA, F-1, Evidências, Histórico), não paths
+- Critérios de integração ao método são **binários e verificáveis** (mencionar documentos canônicos por nome, não por path)
+
+**FORA DO ESCOPO DO MÉTODO (Implementação Operacional):**
+- Onde criar os arquivos (paths específicos)
+- Como organizar no filesystem
+- Comandos para verificar existência
+- Estrutura de pastas do projeto
+
+**REGRA:** O método governa **o que criar** (conceitos). O projeto decide **onde criar** (paths).
 
 1. **`GOVERNANCE_CYCLE_LIFECYCLE.md`** (Principal)
    - Mapeamento completo do ciclo DEMANDA → F-1 → Execução → Evidências → Histórico
    - Papel de cada artefato
    - Transições entre etapas
    - Critérios de "ativo vs histórico"
-   - **Conceitual:** Não depende de paths específicos
 
 2. **`GOVERNANCE_ARTIFACT_BOUNDARIES.md`**
    - Fronteiras semânticas entre artefatos
    - Propósito único de cada tipo
    - Momento de criação
    - Critério de transição
-   - **Conceitual:** Define diferenças semânticas, não estrutura de pastas
 
 3. **`GOVERNANCE_FRICTION_ANALYSIS.md`**
    - Análise de fricção cognitiva atual
-   - Exemplos concretos de ambiguidade (podem ser do projeto atual, mas método é genérico)
+   - Exemplos concretos de ambiguidade (marcados como ilustrativos)
    - Pontos de melhoria identificados
-   - **Conceitual:** Identifica fricções conceituais, não problemas de filesystem
 
 4. **`GOVERNANCE_ENDFIRST_ALIGNMENT.md`**
    - Validação de alinhamento com END-FIRST v2
    - Compatibilidade com Pilar END-FIRST
    - Integração com F-1
-   - **Conceitual:** Valida alinhamento metodológico, não paths
 
 ### Evidência (Documental, Não Automação)
 
 5. **`governance_cycle_lifecycle_proof.md`**
    - Evidência de conformidade (documental)
-   - Status de cada fase
-   - **DIFERENCIAÇÃO:** Criar arquivo markdown = documentação ✅ | Scripts/validações automáticas = automação ❌
+   - Status de cada fase F1-F6
+   - Declaração final de status
 
 ---
 
-## 🔍 PROVAS CONCEITUAIS vs OPERACIONAIS
+## 🔧 IMPLEMENTAÇÃO OPERACIONAL (Específica do Projeto "livros")
 
-### Separação Metodológica
+**⚠️ SEPARAÇÃO METODOLÓGICA:**
+Esta seção é **implementação operacional** deste projeto específico.  
+**NÃO é parte do método.** Outros projetos podem implementar de forma diferente.
 
-**PROVA CONCEITUAL (Documental):**
-- Verifica existência e conteúdo de documentos
-- Independente de ferramenta (Docker, filesystem, paths)
-- Aplicável a qualquer projeto que use END-FIRST
-- **Tipo:** Documentação (criar arquivos markdown)
+**Paths onde os documentos serão criados neste projeto:**
+- Documentos conceituais: `/METODO/` (implementação deste projeto)
+- Evidência: `/EVIDENCIAS/metodo/` (implementação deste projeto)
 
-**PROVA OPERACIONAL (Específica do Projeto):**
-- Comandos específicos para este projeto (ex: Docker)
-- Paths específicos deste repositório
-- **NÃO é parte do método**; é implementação deste projeto
-- **Tipo:** Exemplos ilustrativos (opcional)
-
-### Exemplos Operacionais (Opcional, Específico do Projeto "livros")
-
-**⚠️ NOTA:** Estes comandos são **exemplos operacionais** para este projeto específico.  
-**NÃO são parte do método.** O método é conceitual e independente de Docker/paths.
+**Comandos de verificação (opcional, específico deste projeto):**
 
 ```bash
 # Exemplo F1 (apenas para este projeto)
@@ -359,13 +360,14 @@ docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_FRICTION_ANALYSI
 docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_ENDFIRST_ALIGNMENT.md && echo "OK: validação existe" || echo "FAIL: validação não existe"'
 
 # Exemplo F5 (apenas para este projeto)
-docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_CYCLE_LIFECYCLE.md && grep -q "GOVERNANCE_CYCLE_LIFECYCLE" /app/METODO/END_FIRST_V2.md /app/METODO/ONTOLOGY_DECISIONS.md 2>/dev/null && echo "OK: documento canônico existe e referenciado" || echo "Verificar referências"'
+docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_CYCLE_LIFECYCLE.md && grep -q "END-FIRST v2\|Pilar END-FIRST\|Template Canônico" /app/METODO/GOVERNANCE_CYCLE_LIFECYCLE.md && echo "OK: documento integrado ao método" || echo "Verificar integração"'
 
 # Exemplo F6 (apenas para este projeto)
 docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_CYCLE_LIFECYCLE.md && test -f /app/METODO/GOVERNANCE_ARTIFACT_BOUNDARIES.md && test -f /app/EVIDENCIAS/metodo/governance_cycle_lifecycle_proof.md && echo "OK: todos os documentos existem" || echo "FAIL: documentos faltando"'
 ```
 
-**Regra:** Prova conceitual (documental) é obrigatória. Prova operacional (comandos) é opcional e específica do projeto.
+**⚠️ IMPORTANTE:** Estes comandos são **implementação operacional** deste projeto.  
+**NÃO são parte do método.** O método define **provas conceituais binárias** (verificáveis por grep/existência de arquivo), não comandos Docker.
 
 ---
 
@@ -394,13 +396,26 @@ docker compose exec app bash -c 'test -f /app/METODO/GOVERNANCE_CYCLE_LIFECYCLE.
 
 ## 📌 STATUS
 
-**F-1 PENDENTE DE APROVAÇÃO**
+**✅ CONCLUÍDA**
 
-Este planejamento não autoriza execução.  
-Somente após:
-- Aprovação explícita do CEO
-- Declaração: "F-1 APROVADA"
-- Ordem clara para execução
+**Aprovado por:** CEO (Joubert Jr)  
+**Data de aprovação:** 2026-01-19  
+**Data de conclusão:** 2026-01-19  
+**Declaração canônica:** "F-1 APROVADA"
+
+**Observações do CEO (não bloqueantes):**
+1. Provas binárias via grep: considerar strings mínimas únicas do documento para maior robustez
+2. Critério "não mencionar paths": já mitigado com "exemplos ilustrativos"
+
+**Execução F1-F6:** ✅ COMPLETA
+
+**Documentos criados:**
+- `GOVERNANCE_CYCLE_LIFECYCLE.md`
+- `GOVERNANCE_ARTIFACT_BOUNDARIES.md`
+- `GOVERNANCE_FRICTION_ANALYSIS.md`
+- `GOVERNANCE_ENDFIRST_ALIGNMENT.md`
+
+**Evidência:** `/EVIDENCIAS/metodo/governance_cycle_lifecycle_proof.md`
 
 ---
 

@@ -169,20 +169,55 @@ async def get_result(session_id: str):
     """
     Get the final result of a summarization session.
 
-    Called by frontend after progress reaches 100%.
+    Called by frontend after progress reaches 100% or on error.
     """
     tracker = get_progress_tracker()
 
     state = tracker.get_state(session_id)
     if not state:
-        raise HTTPException(404, "Session not found")
+        raise HTTPException(404, f"Session not found: {session_id}")
 
+    # Se a sessão está completa mas não tem resultado, criar um resultado de erro
+    if state.complete and not state.result:
+        if state.stage == "error":
+            # Criar resultado de erro estruturado
+            error_result = {
+                "session_id": session_id,
+                "status": "FAIL",
+                "errors": [state.message or "Erro desconhecido durante processamento"],
+                "exported_files": {},
+                "coverage_report": None,
+                "addendum_metrics": None,
+                "summaries": None,
+                "summary": None
+            }
+            return error_result
+        else:
+            raise HTTPException(500, "Session completed but no result available")
+
+    # Se ainda não está completo, retornar erro informativo
     if not state.complete:
-        raise HTTPException(400, "Session not yet complete")
+        raise HTTPException(400, f"Session not yet complete. Current stage: {state.stage}, percentage: {state.percentage}%")
 
+    # Se tem erro, retornar resultado de erro estruturado
     if state.stage == "error":
-        raise HTTPException(500, state.message)
+        # Se já tem resultado, retornar; senão criar um estruturado
+        if state.result:
+            return state.result
+        else:
+            error_result = {
+                "session_id": session_id,
+                "status": "FAIL",
+                "errors": [state.message or "Erro durante processamento"],
+                "exported_files": {},
+                "coverage_report": None,
+                "addendum_metrics": None,
+                "summaries": None,
+                "summary": None
+            }
+            return error_result
 
+    # Retornar resultado normal
     if not state.result:
         raise HTTPException(500, "No result available")
 
@@ -595,9 +630,31 @@ async def process_with_progress(
         import traceback
         traceback.print_exc(file=sys.stderr)
         try:
+            # Garantir que o erro seja marcado no tracker
             tracker.mark_error(session_id, error_msg)
+            # Aguardar um pouco para garantir que a mensagem de erro seja enviada via SSE
+            await asyncio.sleep(0.5)
         except Exception as tracker_error:
             print(f"❌ Failed to mark error in tracker: {tracker_error}", file=sys.stderr)
+            # Se falhar ao marcar erro, tentar criar um resultado de erro mínimo
+            try:
+                error_result = {
+                    "session_id": session_id,
+                    "status": "FAIL",
+                    "errors": [f"Erro crítico: {str(e)}", f"Erro ao registrar no tracker: {str(tracker_error)}"],
+                    "exported_files": {},
+                    "coverage_report": None,
+                    "addendum_metrics": None,
+                    "summaries": None,
+                    "summary": None
+                }
+                if session_id in tracker.sessions:
+                    tracker.sessions[session_id].complete = True
+                    tracker.sessions[session_id].result = error_result
+                    tracker.sessions[session_id].stage = "error"
+                    tracker.sessions[session_id].message = error_msg
+            except Exception as final_error:
+                print(f"❌ Failed to create error result: {final_error}", file=sys.stderr)
 
     finally:
         # Cleanup temp file

@@ -237,12 +237,29 @@ class ProgressTracker:
             except Exception as e:
                 # Handle unexpected errors in SSE stream
                 print(f"[SSE] Error in stream for session {session_id}: {e}")
-                error_data = {
-                    "error": True,
-                    "message": f"Erro no stream: {str(e)}",
-                    "complete": True
-                }
-                yield f"data: {json.dumps(error_data)}\n\n"
+                import traceback
+                traceback.print_exc()
+                
+                # Verificar se a sessão foi completada enquanto ocorria o erro
+                if session_id in self.sessions and self.sessions[session_id].complete:
+                    final_update = {
+                        "stage": self.sessions[session_id].stage,
+                        "percentage": self.sessions[session_id].percentage,
+                        "message": self.sessions[session_id].message,
+                        "complete": True
+                    }
+                    if self.sessions[session_id].stage == "error":
+                        final_update["error"] = True
+                    print(f"[SSE] Sending final update after stream error: {final_update}")
+                    yield f"data: {json.dumps(final_update)}\n\n"
+                else:
+                    # Se não está completa, enviar erro de stream
+                    error_data = {
+                        "error": True,
+                        "message": f"Erro no stream: {str(e)}",
+                        "complete": True
+                    }
+                    yield f"data: {json.dumps(error_data)}\n\n"
                 break
 
     def cleanup_old_sessions(self) -> int:
