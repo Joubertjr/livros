@@ -123,28 +123,41 @@ class ProgressTracker:
             except asyncio.QueueFull:
                 pass
 
-    def mark_error(self, session_id: str, error_message: str) -> None:
+    def mark_error(self, session_id: str, error_message: str, error_result: Optional[Dict] = None) -> None:
         """
         Mark a session as failed with error.
 
         Args:
             session_id: Session identifier
             error_message: Error description
+            error_result: Optional error result to store (for API retrieval)
         """
+        # Se sessão não existe, criar uma para preservar o erro
         if session_id not in self.sessions:
-            raise ValueError(f"Session {session_id} not found")
+            print(f"[ProgressTracker] Session {session_id} not found, creating error session")
+            self.sessions[session_id] = ProgressState(
+                session_id=session_id,
+                stage="error",
+                percentage=0,
+                message=error_message
+            )
+            self.queues[session_id] = asyncio.Queue()
 
         self.sessions[session_id].stage = "error"
         self.sessions[session_id].message = error_message
         self.sessions[session_id].complete = True
         self.sessions[session_id].updated_at = datetime.now()
+        
+        # Armazenar resultado de erro se fornecido
+        if error_result:
+            self.sessions[session_id].result = error_result
 
         # Send error update
         if session_id in self.queues:
             try:
                 self.queues[session_id].put_nowait({
                     "stage": "error",
-                    "percentage": 0,
+                    "percentage": self.sessions[session_id].percentage,
                     "message": error_message,
                     "complete": True,
                     "error": True
@@ -200,6 +213,8 @@ class ProgressTracker:
         # Send current state immediately
         state = self.sessions[session_id]
         initial_data = self._serialize_state(state)
+        # Incluir session_id no estado inicial
+        initial_data["session_id"] = session_id
         print(f"[SSE] Sending initial state: {initial_data}")
         yield f"data: {json.dumps(initial_data)}\n\n"
 
@@ -208,6 +223,8 @@ class ProgressTracker:
             try:
                 # Wait for update with timeout (aumentado para 60s para processamentos longos)
                 update = await asyncio.wait_for(queue.get(), timeout=60.0)
+                # Incluir session_id em todas as atualizações
+                update["session_id"] = session_id
                 print(f"[SSE] Sending update: {update}")
                 yield f"data: {json.dumps(update)}\n\n"
 
@@ -224,6 +241,7 @@ class ProgressTracker:
                 # Check if session completed while waiting
                 if session_id in self.sessions and self.sessions[session_id].complete:
                     final_update = {
+                        "session_id": session_id,
                         "stage": self.sessions[session_id].stage,
                         "percentage": self.sessions[session_id].percentage,
                         "message": self.sessions[session_id].message,
@@ -243,6 +261,7 @@ class ProgressTracker:
                 # Verificar se a sessão foi completada enquanto ocorria o erro
                 if session_id in self.sessions and self.sessions[session_id].complete:
                     final_update = {
+                        "session_id": session_id,
                         "stage": self.sessions[session_id].stage,
                         "percentage": self.sessions[session_id].percentage,
                         "message": self.sessions[session_id].message,
@@ -255,6 +274,7 @@ class ProgressTracker:
                 else:
                     # Se não está completa, enviar erro de stream
                     error_data = {
+                        "session_id": session_id,
                         "error": True,
                         "message": f"Erro no stream: {str(e)}",
                         "complete": True

@@ -466,7 +466,45 @@ async def process_with_progress(
 
         # Pipeline robusto (async)
         tracker.update_progress(session_id, "processing", 35, "Processando capítulos...")
-        result = await summarizer.summarize_robust(content_text)
+        
+        # Criar tarefa para enviar atualizações periódicas durante processamento longo
+        async def send_periodic_updates():
+            """Envia atualizações periódicas para manter SSE ativo durante processamento longo."""
+            base_percentage = 35
+            max_percentage = 90
+            update_interval = 10  # segundos
+            increment = 2  # incremento de porcentagem por atualização
+            
+            current = base_percentage
+            iteration = 0
+            while current < max_percentage:
+                await asyncio.sleep(update_interval)
+                # Verificar se já completou
+                state = tracker.get_state(session_id)
+                if state and state.complete:
+                    break
+                # Enviar atualização
+                current = min(base_percentage + (iteration * increment), max_percentage)
+                iteration += 1
+                tracker.update_progress(
+                    session_id,
+                    "processing",
+                    current,
+                    f"Processando capítulos... (isso pode levar alguns minutos)"
+                )
+        
+        # Iniciar tarefa de atualizações periódicas
+        periodic_task = asyncio.create_task(send_periodic_updates())
+        
+        try:
+            result = await summarizer.summarize_robust(content_text)
+        finally:
+            # Cancelar tarefa de atualizações periódicas
+            periodic_task.cancel()
+            try:
+                await periodic_task
+            except asyncio.CancelledError:
+                pass
         
         # Ler coverage_report.json gerado
         coverage_report_path = evidencias_dir / "coverage_report.json"
@@ -630,13 +668,26 @@ async def process_with_progress(
         import traceback
         traceback.print_exc(file=sys.stderr)
         try:
-            # Garantir que o erro seja marcado no tracker
-            tracker.mark_error(session_id, error_msg)
+            # Criar resultado de erro estruturado
+            error_result = {
+                "session_id": session_id,
+                "status": "FAIL",
+                "errors": [error_msg],
+                "exported_files": {},
+                "coverage_report": None,
+                "addendum_metrics": None,
+                "summaries": None,
+                "summary": None
+            }
+            
+            # Garantir que o erro seja marcado no tracker com resultado
+            tracker.mark_error(session_id, error_msg, error_result=error_result)
+            
             # Aguardar um pouco para garantir que a mensagem de erro seja enviada via SSE
             await asyncio.sleep(0.5)
         except Exception as tracker_error:
             print(f"❌ Failed to mark error in tracker: {tracker_error}", file=sys.stderr)
-            # Se falhar ao marcar erro, tentar criar um resultado de erro mínimo
+            # Se falhar ao marcar erro, tentar criar sessão de erro diretamente
             try:
                 error_result = {
                     "session_id": session_id,
@@ -648,11 +699,13 @@ async def process_with_progress(
                     "summaries": None,
                     "summary": None
                 }
-                if session_id in tracker.sessions:
-                    tracker.sessions[session_id].complete = True
-                    tracker.sessions[session_id].result = error_result
-                    tracker.sessions[session_id].stage = "error"
-                    tracker.sessions[session_id].message = error_msg
+                # Criar sessão de erro diretamente se não existir
+                if session_id not in tracker.sessions:
+                    tracker.create_session(session_id)
+                tracker.sessions[session_id].complete = True
+                tracker.sessions[session_id].result = error_result
+                tracker.sessions[session_id].stage = "error"
+                tracker.sessions[session_id].message = error_msg
             except Exception as final_error:
                 print(f"❌ Failed to create error result: {final_error}", file=sys.stderr)
 

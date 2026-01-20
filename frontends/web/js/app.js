@@ -240,6 +240,18 @@ function connectProgressStream(sessionId) {
 
             const data = JSON.parse(jsonData);
             console.log('Parsed data:', data);
+            
+            // Verificar se é mensagem de erro
+            if (data.error || data.stage === "error") {
+                console.log('Error received via SSE');
+                eventSource.close();
+                // Tentar buscar resultado (pode ter resultado de erro estruturado)
+                setTimeout(() => {
+                    fetchResults(sessionId);
+                }, 1000);
+                return;
+            }
+            
             updateProgress(data.percentage, data.message);
 
             if (data.complete) {
@@ -251,11 +263,8 @@ function connectProgressStream(sessionId) {
                     loadHistory();
                 }, 2000);
                 
-                if (data.error) {
-                    showError(data.message);
-                } else {
-                    fetchResults(sessionId);
-                }
+                // Buscar resultado (mesmo se complete, pode ter erro)
+                fetchResults(sessionId);
             }
         } catch (e) {
             console.error('Error parsing SSE data:', e, event.data);
@@ -329,12 +338,43 @@ async function fetchResults(sessionId) {
     try {
         const response = await fetch(`/api/result/${sessionId}`);
 
+        if (response.status === 404) {
+            // Sessão não encontrada - pode ter expirado ou erro não tratado
+            showError('Sessão não encontrada. O processamento pode ter falhado ou a sessão expirou. Tente novamente.');
+            // Resetar formulário para permitir nova tentativa
+            setTimeout(() => {
+                resetForm();
+            }, 3000);
+            return;
+        }
+
         if (!response.ok) {
-            throw new Error('Erro ao obter resultados');
+            // Tentar obter detalhes do erro
+            let errorMessage = 'Erro ao obter resultados';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                }
+            } catch (e) {
+                // Se não conseguir parsear JSON, usar mensagem padrão
+                errorMessage = `Erro HTTP ${response.status}: ${response.statusText}`;
+            }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
-        displayResults(data);
+        
+        // Verificar se é resultado de erro
+        if (data.status === "FAIL" && data.errors && data.errors.length > 0) {
+            showError('Erro durante processamento: ' + data.errors.join(', '));
+            // Ainda mostrar o que foi possível processar, se houver
+            if (data.summary || data.summaries) {
+                displayResults(data);
+            }
+        } else {
+            displayResults(data);
+        }
 
     } catch (error) {
         console.error('Error fetching results:', error);
