@@ -39,80 +39,80 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 var(--spacing-lg);
     width: 100%;
 }
 
 /* Header */
 .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 2rem 0;
-    box-shadow: var(--shadow);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-xl) 0;
+    box-shadow: var(--shadow-base);
 }
 
 .title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
 }
 
 .subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
 }
 
 /* Main */
 main {
     flex: 1;
-    padding: 2rem 0;
+    padding: var(--spacing-xl) 0;
 }
 
 /* Sections */
 .section {
-    background: var(--surface);
-    border-radius: 0.75rem;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: var(--shadow-base);
 }
 
 .section-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: var(--text-primary);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text-primary);
 }
 
 /* Tabs */
 .tab-buttons {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--border);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
 }
 
 .tab-btn {
-    padding: 0.75rem 1.5rem;
+    padding: var(--spacing-md) var(--spacing-lg);
     background: none;
     border: none;
     border-bottom: 3px solid transparent;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
     cursor: pointer;
     transition: all 0.2s;
     margin-bottom: -2px;
 }
 
 .tab-btn:hover {
-    color: var(--primary-color);
+    color: var(--color-primary);
 }
 
 .tab-btn.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 .tab-content {
@@ -125,45 +125,45 @@ main {
 
 /* Drop Zone */
 .drop-zone {
-    border: 2px dashed var(--border);
-    border-radius: 0.75rem;
-    padding: 3rem;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-2xl);
     text-align: center;
-    background: var(--background);
+    background: var(--color-background);
     transition: all 0.3s;
     cursor: pointer;
 }
 
 .drop-zone:hover,
 .drop-zone.dragover {
-    border-color: var(--primary-color);
-    background: #eff6ff;
+    border-color: var(--color-primary);
+    background: rgba(37, 99, 235, 0.05);
 }
 
 .drop-zone-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: var(--spacing-base);
 }
 
 .drop-zone-text {
-    font-size: 1.1rem;
-    color: var(--text-primary);
-    font-weight: 500;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-medium);
 }
 
 .drop-zone-or {
-    color: var(--text-secondary);
+    color: var(--color-text-secondary);
 }
 
 /* File Info */
 .file-info {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #eff6ff;
-    border: 1px solid var(--primary-color);
-    border-radius: 0.5rem;
+    margin-top: var(--spacing-base);
+    padding: var(--spacing-base);
+    background: rgba(37, 99, 235, 0.05);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-md);
 }
 
 .file-info-content {
@@ -175,25 +175,25 @@ main {
 .btn-clear {
     background: none;
     border: none;
-    font-size: 1.25rem;
+    font-size: var(--font-size-xl);
     cursor: pointer;
-    color: var(--text-secondary);
-    padding: 0.25rem 0.5rem;
+    color: var(--color-text-secondary);
+    padding: var(--spacing-xs) var(--spacing-sm);
     transition: color 0.2s;
 }
 
 .btn-clear:hover {
-    color: var(--error-color);
+    color: var(--color-error);
 }
 
-/* Text Input */
+/* Text Input - Usando componentes */
 .text-input {
     width: 100%;
-    padding: 1rem;
-    border: 2px solid var(--border);
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-family: inherit;
+    padding: var(--spacing-base);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-base);
     resize: vertical;
     transition: border-color 0.2s;
 }
@@ -242,90 +242,20 @@ main {
     cursor: pointer;
 }
 
-/* Buttons */
-.btn {
-    padding: 0.875rem 2rem;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: white;
-    box-shadow: var(--shadow);
-}
-
-.btn-primary:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-.btn-primary:disabled {
-    background: var(--secondary-color);
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-secondary {
-    background: var(--surface);
-    color: var(--text-primary);
-    border: 2px solid var(--border);
-}
-
-.btn-secondary:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
+/* Buttons - Usando componentes */
+/* Componentes base estão em components.css */
+/* Mantendo compatibilidade com classes existentes */
 
 #submit-btn {
     width: 100%;
-    margin-top: 1.5rem;
-    font-size: 1.125rem;
-    padding: 1rem;
+    margin-top: var(--spacing-lg);
+    font-size: var(--font-size-lg);
+    padding: var(--spacing-base);
 }
 
-/* Progress */
-.progress-container {
-    position: relative;
-}
-
-.progress-bar-container {
-    width: 100%;
-    height: 2rem;
-    background: var(--border);
-    border-radius: 1rem;
-    overflow: hidden;
-    margin-bottom: 1rem;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), #3b82f6);
-    width: 0%;
-    transition: width 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 0.5rem;
-    color: white;
-    font-weight: 600;
-}
-
-.progress-message {
-    font-size: 1.125rem;
-    color: var(--text-primary);
-    text-align: center;
-    margin-bottom: 0.5rem;
-}
+/* Progress - Usando componentes */
+/* Componentes base estão em components.css */
+/* Mantendo compatibilidade com classes existentes */
 
 /* UX Rule: "UX deve comunicar atividade contínua perceptível mesmo quando o percentual não muda." */
 @keyframes pulse {
@@ -339,9 +269,9 @@ main {
 
 .progress-percentage {
     text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
 }
 
 /* Summary Cards */

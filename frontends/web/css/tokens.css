@@ -1,0 +1,144 @@
+/* Design System Tokens - CoverageSummarizer
+ * 
+ * Regra Canônica: "Sem tokens, todo pixel vira debate."
+ * Regra Canônica: "Se um valor foi inventado 'no olho', o método falhou."
+ * 
+ * Este arquivo define TODOS os valores permitidos no Design System.
+ * Nenhum valor mágico é permitido fora destes tokens.
+ */
+
+:root {
+  /* ============================================
+     SPACING TOKENS
+     ============================================ */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px */
+  --spacing-base: 1rem;   /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-2xl: 3rem;    /* 48px */
+  --spacing-3xl: 4rem;    /* 64px */
+
+  /* ============================================
+     TYPOGRAPHY TOKENS
+     ============================================ */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.75rem;   /* 28px */
+  --font-size-3xl: 2.5rem;    /* 40px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+
+  /* ============================================
+     COLOR TOKENS - Base
+     ============================================ */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #64748b;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+
+  /* ============================================
+     COLOR TOKENS - States
+     ============================================ */
+  --color-hover-primary: #1d4ed8;
+  --color-hover-success: #059669;
+  --color-hover-error: #dc2626;
+  --color-hover-secondary: #475569;
+  
+  --color-focus-primary: #3b82f6;
+  --color-focus-ring: rgba(37, 99, 235, 0.5);
+  
+  --color-disabled-bg: #f1f5f9;
+  --color-disabled-text: #94a3b8;
+  --color-disabled-border: #e2e8f0;
+  
+  --color-loading-primary: #3b82f6;
+  --color-loading-bg: rgba(37, 99, 235, 0.1);
+
+  /* ============================================
+     BORDER RADIUS TOKENS
+     ============================================ */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-full: 9999px; /* Full circle */
+
+  /* ============================================
+     SHADOW TOKENS
+     ============================================ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* ============================================
+     LEGACY COMPATIBILITY (para migração gradual)
+     ============================================ */
+  /* Estes tokens mapeiam variáveis antigas para novos tokens */
+  --primary-color: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --secondary-color: var(--color-secondary);
+  --success-color: var(--color-success);
+  --error-color: var(--color-error);
+  --warning-color: var(--color-warning);
+  --background: var(--color-background);
+  --surface: var(--color-surface);
+  --border: var(--color-border);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --shadow: var(--shadow-base);
+  --shadow-lg: var(--shadow-lg);
+}
+
+/* ============================================
+   DOCUMENTAÇÃO DE USO
+   ============================================
+   
+   REGRAS CANÔNICAS:
+   - "Sem tokens, todo pixel vira debate."
+   - "Se um valor foi inventado 'no olho', o método falhou."
+   
+   USO OBRIGATÓRIO:
+   - NUNCA use valores mágicos (ex: padding: 15px)
+   - SEMPRE use tokens (ex: padding: var(--spacing-lg))
+   - Se um valor não existe nos tokens, ADICIONE ao tokens.css primeiro
+   
+   EXEMPLOS:
+   ✅ padding: var(--spacing-lg);
+   ✅ font-size: var(--font-size-xl);
+   ✅ color: var(--color-text-primary);
+   ✅ border-radius: var(--radius-md);
+   ✅ box-shadow: var(--shadow-base);
+   
+   ❌ padding: 1.5rem; (use --spacing-lg)
+   ❌ font-size: 1.25rem; (use --font-size-xl)
+   ❌ color: #1e293b; (use --color-text-primary)
+   ❌ border-radius: 8px; (use --radius-md)
+ */
