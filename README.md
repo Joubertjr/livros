@@ -83,6 +83,7 @@ PYEOF
 
 - `docker compose exec app make evidence` - Gera evidências de execução
 - `docker compose exec app make sync-metodo` - **Sincroniza pasta METODO/ do repositório remoto (FONTE DE VERDADE)**
+- `docker compose exec app make protect-metodo` - **Aplica proteção somente leitura em METODO/ (se necessário)**
 
 ## ⚠️ REGRA CRÍTICA: Sincronização do Diretório METODO/
 
