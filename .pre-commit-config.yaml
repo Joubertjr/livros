@@ -1,0 +1,17 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-tdd-order
+        name: Validar ordem TDD (teste antes de código)
+        entry: bash scripts/pre-commit-check-tdd.sh
+        language: system
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+      - id: check-function-length
+        name: Validar tamanho de funções (Clean Code)
+        entry: bash scripts/pre-commit-check-clean-code.sh
+        language: system
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
