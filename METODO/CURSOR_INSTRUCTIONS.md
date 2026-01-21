@@ -6,13 +6,13 @@ status: approved
 approved_by: CEO
 approved_at: 2026-01-10
 governed_by: /METODO/PILAR_ENDFIRST.md
-version: 1.2
+version: 1.5
 created_at: 2026-01-10
 ---
 
 # CURSOR INSTRUCTIONS — Instruções Operacionais para Cursor
 
-**Versão:** 1.2  
+**Versão:** 1.5  
 **Data:** 19 de Janeiro de 2026 (atualizado)  
 **Tipo:** Operacional (Tipo B)  
 **Owner:** CEO (Joubert Jr)
@@ -297,9 +297,131 @@ Início  Commits  Fim
 | Versão | Data | Mudanças |
 |--------|------|----------|
 | 1.0 | 2026-01-10 | Versão inicial: regras de rastreabilidade Kanban |
+| 1.3 | 2026-01-19 | Adicionado Gate Z12 — Checklist de Auditoria Canônica |
+| 1.4 | 2026-01-19 | Adicionada automação de Z12-A e Z12-B (make z12) |
+| 1.5 | 2026-01-19 | Adicionado Gate Z13 — UI/UX Sistêmica (elimina subjetividade de UI) |
 
 ---
 
 **Governado por:** `/METODO/PILAR_ENDFIRST.md`  
 **Criado por:** Manus (Agent)  
 **Aprovado por:** CEO (Joubert Jr)
+
+
+---
+
+## ✅ Gate Z12 — Checklist de Auditoria Canônica (Obrigatório)
+
+**Ordem Canônica:** Z0 (Estrutura) → Z11 (END-USER SMOKE) PASS → **Z12 (Auditoria Canônica)** → **Z13 (UI/UX Sistêmica)** → DONE
+
+O Gate Z12 valida coerência entre planejamento, execução e evidências (incluindo Z11). O Gate Z13 valida conformidade de UI/UX (quando aplicável).
+
+### Automação Disponível
+
+Para executar as validações automatizadas de Z12-A e Z12-B, use:
+
+```bash
+make z12
+```
+
+Este comando executa:
+- `tools/z12_audit.sh` (Z12-A: Auditoria de Método)
+- `tools/z12_docs_check.sh` (Z12-B: Auditoria de Documentação)
+
+Se `make z12` retornar **PASS**, as validações automáticas estão OK. Z12-C (Coerência) ainda requer validação manual.
+
+### Checklist Manual (Z12-C e revisão final)
+
+Antes de declarar qualquer demanda como **DONE**, você **DEVE** executar este checklist de auditoria. Uma falha em qualquer um dos itens abaixo significa que o **Gate Z12 falhou (FAIL)**, e a declaração de DONE está **proibida**. A demanda deve ser corrigida e este checklist deve ser re-executado até que todos os itens passem (PASS).
+
+### Z12-A — Auditoria de Método (Estrutural)
+
+- [ ] **Template Canônico:** A demanda segue rigorosamente a estrutura de 11 seções do Template Canônico?
+- [ ] **Aprovação F-1:** Existe um artefato de aprovação F-1 claro e datado que precede o início da execução?
+- [ ] **Respeito ao Escopo:** Nenhum arquivo foi criado, modificado ou excluído fora das diretrizes explícitas de `DO` e `DON'T` da demanda?
+- [ ] **Violação de Frases Canônicas:** Nenhuma das frases canônicas do método foi violada durante a execução ou na documentação gerada?
+
+### Z12-B — Auditoria de Documentação (Qualidade)
+
+- [ ] **Markdown Válido:** Todos os arquivos `.md` gerados ou modificados são sintaticamente válidos e renderizam corretamente, sem artefatos de lixo técnico (ex: números de linha, marcadores de conflito)?
+- [ ] **Checklists Renderizáveis:** Todos os checklists usam a sintaxe correta (`- [ ]` ou `- [x]`) e são funcionais?
+- [ ] **Existência de Evidências:** Todas as declarações de conclusão ou resultado são suportadas por evidências (arquivos, logs, screenshots) que estão devidamente referenciadas no corpo do texto?
+- [ ] **Sem Vazamento de Artefatos:** Nenhum artefato técnico (ex: snippets de código de depuração, logs internos) vazou para documentos destinados ao usuário final ou à gestão?
+
+### Z12-C — Auditoria de Coerência (Lógica)
+
+- [ ] **Execução vs. Planejamento:** Todas as ações executadas (commits, criação de arquivos, etc.) correspondem diretamente a um item que foi definido no planejamento (F-1)?
+- [ ] **Planejamento vs. Execução:** Todos os itens definidos no planejamento foram de fato executados e concluídos?
+- [ ] **DONE vs. PROOF:** Cada item declarado como "concluído" ou "entregue" possui uma prova (PROOF) clara e irrefutável de sua conclusão?
+
+---
+
+**Regra Final:** Somente após a verificação positiva de **TODOS** os itens acima (incluindo Z11 PASS e Z13 PASS se aplicável), você pode declarar a demanda como **DONE**.
+
+---
+
+## 🎨 Gate Z13 — Checklist de UI/UX Sistêmica (Obrigatório para demandas com UI)
+
+**Ordem Canônica:** Z0 (Estrutura) → Z11 (END-USER SMOKE) PASS → Z12 (Auditoria Canônica) PASS → **Z13 (UI/UX Sistêmica)** → DONE
+
+O Gate Z13 é um gate de validação binário que garante que a interface do usuário final (UI) adere a um padrão mínimo de consistência, legibilidade e previsibilidade. Sua função é eliminar a subjetividade da avaliação de UI e transformá-la em um checklist de conformidade técnica.
+
+> **Frase Canônica:** "Z13 não decide se a UI é boa. Decide se ela é aceitável como produto de engenharia."
+
+### Aplicabilidade
+
+O Gate Z13 é **obrigatório** para toda demanda que envolva **UI/UX** (interface do usuário final). Se a demanda não envolve UI/UX, este gate pode ser pulado.
+
+### 4 Regras Canônicas (Não Negociáveis)
+
+- **R1:** Se tudo tem o mesmo peso visual, a UI falhou.
+- **R2:** Conteúdo do usuário e metadados de auditoria não podem ocupar o mesmo plano visual.
+- **R3:** Uma UI que exige explicação externa para ser usada é FAIL.
+- **R4:** Inconsistência entre componentes idênticos é FAIL.
+
+### Checklist de Conformidade (PASS/FAIL)
+
+Antes de declarar qualquer demanda com UI como **DONE**, você **DEVE** executar este checklist. Uma falha em qualquer um dos itens abaixo significa que o **Gate Z13 falhou (FAIL)**, e a declaração de DONE está **proibida**.
+
+#### Eixo 1: Hierarquia e Layout
+
+- [ ] **H1: Hierarquia Tipográfica** — Existe uma distinção clara e consistente entre títulos (H1, H2, H3), parágrafos e legendas? (FAIL se fontes de níveis diferentes são indistinguíveis).
+- [ ] **H2: Escala de Espaçamento** — Todos os espaçamentos (margens, paddings) entre elementos seguem uma escala de tokens predefinida (ex: 4, 8, 12, 16, 24, 32px)? (FAIL se espaçamentos são aleatórios ou "mágicos").
+- [ ] **H3: Alinhamento** — Todos os elementos estão visivelmente alinhados em um grid? (FAIL se elementos parecem "flutuar" ou estão desalinhados sem propósito claro).
+
+#### Eixo 2: Consistência de Componentes
+
+- [ ] **C1: Consistência de Cor** — Todas as cores usadas (primária, secundária, erro, sucesso) vêm de uma paleta de tokens definida? (FAIL se cores são hard-coded e fora da paleta).
+- [ ] **C2: Consistência de Borda** — Todos os elementos interativos (botões, cards, inputs) usam o mesmo valor de border-radius definido nos tokens? (FAIL se há múltiplos estilos de arredondamento).
+- [ ] **C3: Consistência de Sombra** — Todas as sombras aplicadas (em cards, modais) seguem os tokens de sombra predefinidos? (FAIL se há sombras customizadas).
+
+#### Eixo 3: Interação e Feedback
+
+- [ ] **I1: Feedback de Hover** — Todos os elementos clicáveis (botões, links, cards interativos) possuem um estado de hover visualmente distinto? (FAIL se um elemento clicável não reage ao passar do mouse).
+- [ ] **I2: Estado de Foco Visível** — É possível navegar pela interface usando o teclado (Tab) e ver claramente qual elemento está em foco? (FAIL se o foco do teclado é invisível).
+- [ ] **I3: Sem Conteúdo de Debug** — A interface final visível para o usuário não contém nenhum texto, borda ou cor que foi usado apenas para fins de debug? (FAIL se console.log visual, `border: 1px solid red` etc. estão visíveis).
+
+### PROOF (Prova Objetiva de Conformidade)
+
+A prova de que o Gate Z13 foi executado e obteve PASS é composta por:
+
+1. **Checklist Preenchido:** Uma cópia deste checklist com cada item marcado como PASS.
+2. **Evidência Visual (Screenshot):** Um screenshot da tela ou componente final, como prova visual da conformidade.
+
+**Exemplo de PROOF:**
+
+```markdown
+## ✅ Gate Z13: PASS
+
+**Evidência:**
+- Checklist de Conformidade Z13: [link para o checklist preenchido]
+- Screenshot da UI Final: ![UI Final](link_para_screenshot.png)
+```
+
+**Documentação completa:** `/METODO/GATE_Z13_UI_UX_SISTEMICA.md`
+
+---
+
+**Regra Final:** Somente após a verificação positiva de **TODOS** os itens acima (Z11 PASS, Z12 PASS, Z13 PASS se aplicável), você pode declarar a demanda como **DONE**.
+
+---

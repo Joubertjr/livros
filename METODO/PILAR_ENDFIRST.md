@@ -6,7 +6,7 @@ status: approved
 approved_by: CEO
 approved_at: 2026-01-07
 governed_by: Si mesmo (meta-aplicação)
-version: 1.2
+version: 1.4
 created_at: 2026-01-04
 ---
 
@@ -603,6 +603,50 @@ Pilar ENDFIRST → DEMANDA → F-1 (Planejamento) → EXECUÇÃO
 
 ---
 
+## 🔒 Princípio 5: Auditoria Sistêmica Precede a Validação Humana
+
+> **Frase Canônica:** "Se um commit precisa ser revisado manualmente para garantir coerência, o método ainda está incompleto."
+
+### Definição:
+
+O método END-FIRST prioriza a criação de sistemas e processos que se auto-validam. A confiança na entrega não deve depender da atenção, memória ou disciplina de um indivíduo, mas sim da robustez de gates automáticos e verificações sistêmicas.
+
+A revisão humana é valiosa para feedback qualitativo, estratégico e de valor, mas é inerentemente falha para a verificação repetitiva de conformidade, sintaxe e coerência estrutural. Portanto, o método deve, incessantemente, buscar transformar qualquer checklist manual em um script automático.
+
+### Implicações Práticas:
+
+1.  **Mecanismos de Garantia:** A qualidade e a conformidade são garantidas por mecanismos (como o **Gate Z12**), não por pessoas. O papel da pessoa é criar e melhorar o mecanismo.
+2.  **Redução de Carga Cognitiva:** A automação da auditoria libera a energia mental dos executores, que podem focar na resolução do problema em si, em vez de se preocuparem com as regras do processo.
+3.  **Feedback Imediato e Impessoal:** Falhas de processo são apontadas por um sistema automático, de forma imediata e sem viés. Isso acelera a correção e remove o atrito interpessoal da revisão.
+4.  **Escalabilidade:** Um método que depende de revisão humana para escalar inevitavelmente gera gargalos e inconsistências. Um método que se auto-audita escala com a mesma velocidade e qualidade, independentemente do número de executores.
+
+Este pilar é a manifestação prática da busca do END-FIRST por um sistema que não apenas guia a execução, mas também garante sua própria integridade, transformando "DONE" em um estado verificável e não apenas uma declaração de intenção.
+
+---
+
+## 🎨 Princípio 6: Legibilidade é Requisito Sistêmico, Não Estético
+
+> **Frase Canônica:** "Z13 não decide se a UI é boa. Decide se ela é aceitável como produto de engenharia."
+
+### Definição:
+
+O método END-FIRST trata UI/UX não como "design", mas como **engenharia de interface**. A avaliação de uma interface não deve ser subjetiva ("bonita", "agradável"), mas objetiva ("conforme", "consistente", "previsível").
+
+O **Gate Z13 (UI/UX Sistêmica)** transforma a avaliação de UI em um checklist binário de conformidade técnica, eliminando discussões estéticas e removendo o CEO do loop de decisão de interface.
+
+### Implicações Práticas:
+
+1.  **Hierarquia Visual é Obrigatória:** Se tudo tem o mesmo peso visual, a UI falhou. A ausência de hierarquia é um defeito, não um estilo.
+2.  **Consistência é Contrato:** Um botão deve ser sempre o mesmo botão. Inconsistência entre componentes idênticos é FAIL.
+3.  **Autoexplicabilidade é Requisito:** Uma UI que exige explicação externa para ser usada é FAIL. A interface deve ser autoexplicativa para as operações básicas.
+4.  **Separação de Planos:** Conteúdo do usuário e metadados de auditoria não podem ocupar o mesmo plano visual. Informações para o desenvolvedor (ex: IDs, logs de debug) não devem poluir a interface do usuário final.
+
+Este pilar é a manifestação prática da busca do END-FIRST por transformar subjetividade em objetividade, removendo "gosto pessoal" da equação e substituindo por "conformidade com regras sistêmicas".
+
+**Documentação completa:** `/METODO/GATE_Z13_UI_UX_SISTEMICA.md`
+
+---
+
 ## 📝 Template Canônico de Demanda
 
 ### O que é o Template Canônico
@@ -652,7 +696,7 @@ Se este documento não responde, a resposta ainda não existe oficialmente.
 
 ---
 
-**Versão:** 1.2  
+**Versão:** 1.3  
 **Data:** 19 de Janeiro de 2026 (atualizado)  
 **Path Canônico:** `/METODO/PILAR_ENDFIRST.md`  
 **Status:** Canônico (Fechado)
@@ -661,3 +705,4 @@ Se este documento não responde, a resposta ainda não existe oficialmente.
 - v1.0 (2026-01-04): Versão inicial
 - v1.1 (2026-01-19): Adicionada referência a END-FIRST v2 (F-1 Planejamento Canônico)
 - v1.2 (2026-01-19): Adicionada referência ao Template Canônico de Demanda
+- v1.3 (2026-01-19): Adicionado Princípio 5: Auditoria Sistêmica Precede a Validação Humana

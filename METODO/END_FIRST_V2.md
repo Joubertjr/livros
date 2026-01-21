@@ -6,7 +6,7 @@ status: approved
 approved_by: CEO
 approved_at: 2026-01-19
 governed_by: /METODO/PILAR_ENDFIRST.md
-version: 1.1
+version: 1.2
 created_at: 2026-01-19
 ---
 
@@ -390,6 +390,178 @@ Demanda (Template Canônico) → F-1 (Planejamento) → Execução
 
 ---
 
+## 🔒 Gate Z12 — Auditoria Canônica (Obrigatório)
+
+O **Gate Z12** é um gate estrutural e obrigatório que valida a conformidade da execução com o método END-FIRST. Sua função é garantir que a demanda foi executada corretamente, que a documentação é íntegra e que a coerência entre planejamento e resultado é total. Este gate é a última verificação sistêmica antes da entrega.
+
+> **Frase Canônica:** "Sem auditoria sistemática, DONE é apenas uma declaração. Com ela, DONE vira um fato."
+
+### Fluxo de Posição:
+
+```mermaid
+graph TD
+    A[DEMANDA] --> B{F-1 Aprovado}
+    B --> C[EXECUÇÃO]
+    C --> D{Gate Z11: END-USER SMOKE}
+    D -- PASS --> E{Gate Z12: Auditoria Canônica}
+    E -- PASS --> F{Gate Z13: UI/UX Sistêmica}
+    F -- PASS --> G[DONE]
+    D -- FAIL --> C
+    E -- FAIL --> C
+    F -- FAIL --> C
+```
+
+**Ordem canônica:**
+```
+Z0 (Estrutura) → Z11 (END-USER SMOKE) → Z12 (Auditoria Canônica) → Z13 (UI/UX Sistêmica) → DONE
+```
+
+### Definição e Propósito:
+
+O Gate Z12 move a responsabilidade da verificação de conformidade de uma revisão humana, suscetível a erros e inconsistências, para um processo sistêmico e automatizável. Ele serve como uma barreira de qualidade que impede que problemas de método, documentação ou coerência cheguem à fase de entrega.
+
+### Regras de Execução:
+
+1.  **Obrigatoriedade:** O Gate Z12 deve ser executado para **toda e qualquer demanda** antes da declaração de DONE.
+2.  **Condição de Bloqueio:** Uma falha (FAIL) em qualquer um dos sub-gates do Z12 **proíbe a declaração de DONE**. A demanda deve ser corrigida e o gate re-executado até obter um PASS.
+3.  **Execução:** O Gate Z12 possui **automação mínima implementada** via `make z12` (Z12-A e Z12-B automatizados). Z12-C (Coerência) ainda requer validação manual assistida por IA (Cursor/Claude), utilizando o checklist canônico definido em `CURSOR_INSTRUCTIONS.md`. Scripts disponíveis: `tools/z12_audit.sh` (método) e `tools/z12_docs_check.sh` (documentação).
+
+### Sub-Gates:
+
+O Gate Z12 é composto por três auditorias específicas, que validam diferentes aspectos da entrega:
+
+-   **Z12-A (Auditoria de Método):** Garante que a estrutura fundamental do método foi seguida.
+-   **Z12-B (Auditoria de Documentação):** Garante a qualidade e integridade dos artefatos de documentação.
+-   **Z12-C (Auditoria de Coerência):** Garante que o que foi planejado, executado e entregue estão em perfeita sincronia.
+
+Ao institucionalizar o Gate Z12, o método END-FIRST fecha seu loop estrutural de auditoria de método, transformando a confiança em garantia e a revisão manual em validação sistêmica.
+
+---
+
+## 🔒 Gate Z13 — UI/UX Sistêmica (Obrigatório para demandas com UI)
+
+O **Gate Z13** é um gate de validação binário que garante que a interface do usuário final (UI) adere a um padrão mínimo de consistência, legibilidade e previsibilidade. Sua função é eliminar a subjetividade da avaliação de UI e transformá-la em um checklist de conformidade técnica, auditável e não-opinativo.
+
+> **Frase Canônica:** "Z13 não decide se a UI é boa. Decide se ela é aceitável como produto de engenharia."
+
+### Definição e Propósito:
+
+O Gate Z13 **não avalia se a UI é "bonita" ou "agradável"**. Ele valida se a UI segue as regras sistêmicas definidas, garantindo que o resultado final seja um produto de engenharia, não de arbitragem artística.
+
+### Regras de Execução:
+
+1.  **Aplicabilidade:** O Gate Z13 deve ser executado para **toda demanda que envolva UI/UX** antes da declaração de DONE.
+2.  **Condição de Bloqueio:** Uma falha (FAIL) em qualquer critério do Z13 **proíbe a declaração de DONE**. A demanda deve ser corrigida e o gate re-executado até obter um PASS.
+3.  **Execução:** O Gate Z13 é **manual** (checklist + screenshot). Executor preenche checklist de 9 critérios (Hierarquia, Consistência, Interação) e anexa screenshot como evidência.
+
+### 4 Regras Canônicas (Não Negociáveis):
+
+-   **R1:** Se tudo tem o mesmo peso visual, a UI falhou.
+-   **R2:** Conteúdo do usuário e metadados de auditoria não podem ocupar o mesmo plano visual.
+-   **R3:** Uma UI que exige explicação externa para ser usada é FAIL.
+-   **R4:** Inconsistência entre componentes idênticos é FAIL.
+
+### 9 Critérios de Aceitação (PASS/FAIL):
+
+**Eixo 1: Hierarquia e Layout (3 critérios)**
+-   H1: Hierarquia Tipográfica
+-   H2: Escala de Espaçamento
+-   H3: Alinhamento
+
+**Eixo 2: Consistência de Componentes (3 critérios)**
+-   C1: Consistência de Cor
+-   C2: Consistência de Borda
+-   C3: Consistência de Sombra
+
+**Eixo 3: Interação e Feedback (3 critérios)**
+-   I1: Feedback de Hover
+-   I2: Estado de Foco Visível
+-   I3: Sem Conteúdo de Debug
+
+**Documentação completa:** `/METODO/GATE_Z13_UI_UX_SISTEMICA.md`
+
+Ao institucionalizar o Gate Z13, o método END-FIRST fecha seu loop estrutural de UI/UX, transformando avaliação subjetiva em validação objetiva e removendo o CEO do loop de decisão de interface.
+
+---
+
+## 🔒 Governança de Qualidade para Execução Longa e Streaming
+
+O método END-FIRST v2 define **governança explícita de qualidade** para demandas com **execução longa, streaming de progresso e persistência de resultado**.
+
+> **Frase Canônica:** "Qualidade não é complexidade; é sobrevivência sob falha."
+
+### Classificação de Demandas
+
+Demandas são classificadas em **classes estruturais** que determinam obrigatoriedade de gates:
+
+- **Classe A:** Execução Longa com Streaming e Persistência → **Z10 obrigatório**
+- **Classe B:** Operação Crítica de Negócio → Z10 recomendado
+- **Classe C:** Interface de Usuário Complexa → Z11 e Z13 obrigatórios
+- **Classe D:** Integração Externa → Z10 recomendado
+
+**Documentação completa:** `/METODO/CLASSIFICACAO_TIPOS_DEMANDA.md`
+
+### Regra Binária de Z10
+
+**Para demandas Classe A:**
+
+```
+SE demanda ∈ Classe A
+ENTÃO Z10 é OBRIGATÓRIO
+  OU dispensa explícita e registrada
+```
+
+**Dispensa válida requer:**
+1. Justificativa técnica explícita
+2. Aprovação do CEO ou arquiteto responsável
+3. Registro na demanda
+4. Análise de risco documentada
+
+**Ausência de decisão explícita = FAIL automático**
+
+**Documentação completa:** `/METODO/GOVERNANCA_GATES.md`
+
+### Provas Mínimas de Robustez
+
+**Demandas Classe A exigem 4 provas mínimas:**
+
+1. **Monotonicidade de Progresso:** Progresso nunca regride
+2. **Persistência de Resultado:** Resultado não depende de conexão ativa
+3. **Retomada Após Falha:** Execução sobrevive a desconexão do cliente
+4. **Durabilidade de Resultado:** Resultado não se perde após falha de stream
+
+**Formas de prova aceitas:**
+- Teste automatizado
+- Prova documental (contrato de API, arquitetura)
+- Inspeção de código
+
+**Provas NÃO aceitas:**
+- ❌ "Funcionou no meu teste manual"
+- ❌ "HTML 200"
+- ❌ "Testes antigos passam"
+- ❌ "Parece robusto"
+
+**Documentação completa:** `/METODO/PROVAS_MINIMAS_ROBUSTEZ.md`
+
+### Evidência de Aplicação Retroativa
+
+A governança de qualidade foi aplicada retroativamente em casos reais, demonstrando que:
+
+- DEMANDA-PROD-002 (Processamento de Log com SSE) teria sido classificada como Classe A
+- Z10 teria sido obrigatório
+- Bug de progresso regressivo teria sido detectado antes de PASS
+- Bug de resultado perdido teria sido bloqueado
+
+**Documentação completa:** `/EVIDENCIAS/aplicacao_retroativa_metodo_005.md`
+
+### Origem
+
+Esta governança foi formalizada via **DEMANDA-METODO-005 v2.0** (Aplicação Obrigatória de Qualidade em Execução Longa e Streaming), executada em 2026-01-20.
+
+**Referência:** `/DEMANDAS_MANUS/DEMANDA_METODO-005_ROBUSTEZ_EXECUCAO_LONGA.md`
+
+---
+
 ## 📜 DECLARAÇÃO DO CEO
 
 Reconheço esta evolução como canônica e obrigatória para o método ENDFIRST.
@@ -401,11 +573,14 @@ END-FIRST v2 passa a governar:
 
 **Status:** CANÔNICO  
 **Aplicação:** Imediata para demandas complexas  
-**Versão:** 1.1
+**Versão:** 1.5
 
 **Histórico de mudanças:**
 - v1.0 (2026-01-19): Versão inicial (F-1 Planejamento Canônico)
 - v1.1 (2026-01-19): Adicionada seção Template Canônico de Demanda
+- v1.2 (2026-01-19): Adicionado Gate Z12 — Auditoria Canônica (manual até existir runner CI/script)
+- v1.3 (2026-01-19): Adicionado Gate Z13 — UI/UX Sistêmica (elimina subjetividade de UI)
+- v1.4 (2026-01-20): Adicionada Governança de Qualidade para Execução Longa e Streaming (DEMANDA-METODO-005)
 
 ---
 

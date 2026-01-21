@@ -6,14 +6,16 @@ status: approved
 approved_by: CEO
 approved_at: 2026-01-19
 governed_by: /METODO/END_FIRST_V2.md
-version: 1.0
+version: 1.1
 created_at: 2026-01-19
+updated_at: 2026-01-20
 ---
 
 # TEMPLATE CANÔNICO DE DEMANDA — END-FIRST v2
 
-**Versão:** 1.0  
+**Versão:** 1.1  
 **Data:** 19 de Janeiro de 2026  
+**Última atualização:** 20 de Janeiro de 2026  
 **Status:** Canônico (Obrigatório)  
 **Autoria:** CEO (Joubert Jr) + Manus AI  
 **Path Canônico:** `/METODO/TEMPLATE_DEMANDA_CANONICA.md`
@@ -62,6 +64,7 @@ Toda demanda DEVE conter, nesta ordem:
 demanda_id: DEMANDA-XXX
 title: [Título da Demanda]
 type: [Bug / UX / Produto / Método]
+classe: [A / B / C / D / nenhuma]
 altera_funcionalidade: [sim / não]
 exige_f1: [sim / não]
 status: [backlog / doing / done]
@@ -73,6 +76,7 @@ executor: [Cursor / Manus / Outro]
 # DEMANDA-XXX — [TÍTULO DA DEMANDA]
 
 **Tipo:** [Bug / UX / Produto / Método]  
+**Classe:** [A / B / C / D / nenhuma] (ver `/METODO/CLASSIFICACAO_TIPOS_DEMANDA.md`)  
 **Altera Funcionalidade:** [Sim / Não]  
 **Exige F-1:** [Sim / Não]  
 **Status:** [BACKLOG / DOING / DONE]
@@ -133,6 +137,31 @@ Após a conclusão desta demanda:
 - ❌ [Condição de falha 1]
 - ❌ [Condição de falha 2]
 - ❌ [Condição de falha 3]
+
+---
+
+## 🔒 Gates Obrigatórios
+
+**Baseado na classificação da demanda:**
+
+- **Classe A:** Z10 obrigatório (Qualidade de Produto) OU dispensa explícita registrada
+- **Classe B:** Z10 recomendado
+- **Classe C:** Z11 (END-USER SMOKE) e Z13 (UI/UX Sistêmica) obrigatórios
+- **Classe D:** Z10 recomendado
+- **Todas:** Z12 (Auditoria Canônica) obrigatório
+
+**Referência:** `/METODO/GOVERNANCA_GATES.md`
+
+**Provas mínimas de robustez (Classe A):**
+
+Se demanda ∈ Classe A, exige 4 provas mínimas:
+
+1. ✅ Monotonicidade de Progresso
+2. ✅ Persistência de Resultado
+3. ✅ Retomada Após Falha
+4. ✅ Durabilidade de Resultado
+
+**Referência:** `/METODO/PROVAS_MINIMAS_ROBUSTEZ.md`
 
 ---
 
@@ -522,10 +551,17 @@ Template Canônico de Demanda passa a governar:
 
 **Status:** CANÔNICO  
 **Aplicação:** Imediata para todas as demandas  
-**Versão:** 1.0
+**Versão:** 1.1
+
+---
+
+## 📊 HISTÓRICO DE VERSÕES
+
+- **v1.0** (2026-01-19): Versão inicial do template canônico
+- **v1.1** (2026-01-20): Adicionado campo `classe` (A/B/C/D), seção "Gates Obrigatórios" e referências a governança de qualidade (DEMANDA-METODO-005)
 
 ---
 
 **Governado por:** `/METODO/END_FIRST_V2.md`  
 **Path Canônico:** `/METODO/TEMPLATE_DEMANDA_CANONICA.md`  
-**Refs:** #13
+**Refs:** #13, #14
