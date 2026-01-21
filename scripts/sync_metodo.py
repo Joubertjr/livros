@@ -123,6 +123,8 @@ def sync_file(source: Path, target: Path, relative_path: Path) -> Tuple[bool, st
     """
     Sincroniza um arquivo individual.
     Retorna (atualizado, mensagem)
+    
+    IMPORTANTE: Após copiar, torna o arquivo somente leitura para proteger contra modificações locais.
     """
     target.parent.mkdir(parents=True, exist_ok=True)
     
@@ -132,10 +134,38 @@ def sync_file(source: Path, target: Path, relative_path: Path) -> Tuple[bool, st
     # Se arquivo não existe no destino ou hash é diferente
     if not target_info.get("exists") or source_info["hash"] != target_info["hash"]:
         shutil.copy2(source, target)
+        
+        # Tornar arquivo somente leitura (proteção contra modificações locais)
+        # Remove permissão de escrita para owner, group e others
+        os.chmod(target, 0o444)  # r--r--r-- (somente leitura)
+        
         action = "criado" if not target_info.get("exists") else "atualizado"
         return True, f"✅ {action}: {relative_path}"
     
+    # Garantir que arquivo existente também está somente leitura
+    if target.exists():
+        current_mode = os.stat(target).st_mode
+        # Se arquivo tem permissão de escrita, remover
+        if current_mode & 0o222:  # Se tem bits de escrita (w)
+            os.chmod(target, 0o444)  # Tornar somente leitura
+    
     return False, f"⏭️  sem mudanças: {relative_path}"
+
+
+def make_metodo_readonly(target_dir: Path):
+    """
+    Torna todos os arquivos em METODO/ somente leitura.
+    Proteção contra modificações locais.
+    """
+    for root, dirs, filenames in os.walk(target_dir):
+        for filename in filenames:
+            file_path = Path(root) / filename
+            try:
+                # Tornar somente leitura (r--r--r--)
+                os.chmod(file_path, 0o444)
+            except (OSError, PermissionError) as e:
+                # Ignorar erros de permissão (pode acontecer em alguns sistemas)
+                pass
 
 
 def remove_orphaned_files(source_files: List[Path], target_dir: Path, source_base: Path) -> List[str]:
@@ -241,6 +271,12 @@ def main():
             removed = remove_orphaned_files(source_files, METODO_TARGET, source_metodo)
             for msg in removed:
                 print(msg)
+            
+            # Tornar todos os arquivos somente leitura (proteção contra modificações)
+            print()
+            print("🔒 Tornando arquivos somente leitura (proteção contra modificações locais)...")
+            make_metodo_readonly(METODO_TARGET)
+            print("✅ Proteção aplicada: METODO/ é somente leitura")
             
             # Escrever log
             write_sync_log(updates, removed, timestamp)
