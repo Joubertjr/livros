@@ -3,7 +3,8 @@
 **Demanda:** DEMANDA-PROD-004_PERSISTENCIA_PROGRESSIVA_RETOMADA_SEGURA.md  
 **Método:** END-FIRST v2  
 **Data:** 2026-01-21  
-**Status:** ⏸️ F-1 PENDENTE APROVAÇÃO  
+**Status:** ✅ F-1 APROVADA  
+**Aprovação:** 2026-01-21 (CEO - Declaração Formal)  
 **Classe:** A (Execução Longa + Streaming + Persistência + Retomada)  
 **Z10 Obrigatório:** ✅ SIM  
 **Repositório:** https://github.com/Joubertjr/livros
@@ -413,7 +414,11 @@ docker compose exec app bash -c 'curl -s http://localhost:8000/api/health | grep
 
 ## 🎯 APROVAÇÃO
 
-**Status:** ⏸️ PENDENTE DE APROVAÇÃO
+**Status:** ✅ **F-1 APROVADA**
+
+**Data de Aprovação:** 2026-01-21  
+**Aprovado por:** CEO (Joubert Jr)  
+**Declaração Formal:** "F-1 APROVADA — DEMANDA-PROD-004"
 
 **Checklist de Aprovação:**
 - [x] TODO canônico existe (F0-F9)
@@ -425,10 +430,20 @@ docker compose exec app bash -c 'curl -s http://localhost:8000/api/health | grep
 - [x] Nenhum código foi criado durante F-1
 - [x] Gate Z10 identificado como obrigatório (Classe A)
 - [x] Frases canônicas referenciadas
+- [x] Declaração explícita: **"F-1 aprovada"** ✅
+- [x] Aprovação do CEO ✅
 
-**Aguardando:**
-- [ ] Declaração explícita: **"F-1 aprovada"**
-- [ ] Aprovação do CEO ou arquiteto responsável
+**Justificativa da Aprovação:**
+1. END é correto e necessário (resolve falha real observada)
+2. Demanda corretamente classificada (Classe A, Z10 obrigatório)
+3. F-1 completo e governável (não depende de interpretação humana)
+4. Fluxo correto (execução sem F-1 bloqueada)
+
+**Autorização Formal:**
+✅ Execução da DEMANDA-PROD-004 está LIBERADA
+✅ Cursor pode iniciar F0 → F9, em ordem
+❌ Nenhuma outra demanda PROD está liberada
+❌ Nenhuma execução fora do TODO é permitida
 
 ---
 

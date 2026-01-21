@@ -71,11 +71,11 @@
 
 **Tipo:** PROD  
 **Classe:** A (Execução Longa + Streaming + Persistência + Retomada)  
-**Existe F-1?** ❌ NÃO  
-**F-1 Aprovada?** ❌ N/A (F-1 não existe)  
+**Existe F-1?** ✅ SIM (`planejamento/DEMANDA-PROD-004_PLAN.md`)  
+**F-1 Aprovada?** ✅ SIM (2026-01-21 - CEO)  
 **Z10 é obrigatório?** ✅ SIM (Classe A - obrigatório)  
-**Pode executar agora?** ❌ BLOQUEADA (F-1 obrigatório, não existe)  
-**Risco de retrabalho:** 🔴 ALTO (problema real observado: progresso perdido)
+**Pode executar agora?** ✅ LIBERADA (F-1 aprovada)  
+**Risco de retrabalho:** 🟢 BAIXO (F-1 completo e governável)
 
 **Análise:**
 - END bem definido ✅
@@ -223,12 +223,13 @@
 
 ## 📋 ORDEM DE EXECUÇÃO RECOMENDADA
 
-### Prioridade 1 (BLOQUEANTE)
+### Prioridade 1 (BLOQUEANTE) — ✅ CONCLUÍDA
 
-1. **Criar F-1 para DEMANDA-PROD-004**
-   - Classe A (Z10 obrigatório)
-   - Problema real observado
-   - **Não executar sem F-1 aprovado**
+1. **Criar F-1 para DEMANDA-PROD-004** ✅
+   - Classe A (Z10 obrigatório) ✅
+   - Problema real observado ✅
+   - **F-1 APROVADO** ✅ (2026-01-21)
+   - **EXECUÇÃO LIBERADA** ✅
 
 ### Prioridade 2 (ESTRUTURAL)
 
@@ -272,7 +273,7 @@ somente se ela tiver END claro, classe definida e F-1 aprovado."**
 |---------|------|--------|-----|-----|-----|-----------------|
 | PROD-002 | PROD | A | ✅ | ✅ OBRIG | ✅ | ❌ BLOQUEADA |
 | PROD-003 | PROD | B | ✅ | ⚠️ RECOM | ✅ | ❌ BLOQUEADA |
-| PROD-004 | PROD | A | ❌ | ✅ OBRIG | ✅ | ❌ BLOQUEADA |
+| PROD-004 | PROD | A | ✅ | ✅ OBRIG | ✅ | ✅ LIBERADA |
 | METODO-003 | METODO | N/A | ✅ | ❌ | ❌ | ✅ DONE |
 | METODO-005 | METODO | N/A | ✅ | ❌ | ❌ | ⚠️ AGUARDANDO |
 | UX-001 | UX | C | ✅ | ❌ | ✅ OBRIG | ⚠️ AGUARDANDO |
