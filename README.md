@@ -94,7 +94,9 @@ O diretório `METODO/` contém o **núcleo operacional do Pilar ENDFIRST** e é 
 
 1. **NUNCA modifique arquivos em `METODO/` diretamente**
    - Todos os arquivos vêm do repositório remoto
+   - **Arquivos são somente leitura (proteção automática)**
    - Modificações locais serão sobrescritas na próxima sincronização
+   - **Você não pode salvar arquivos neste diretório** (somente leitura)
 
 2. **Sempre use sincronização para atualizar `METODO/`**
    ```bash
@@ -109,6 +111,7 @@ O diretório `METODO/` contém o **núcleo operacional do Pilar ENDFIRST** e é 
    - Clona/atualiza o repositório remoto temporariamente
    - Compara arquivos usando hash SHA256
    - Sincroniza apenas arquivos que mudaram
+   - **Torna todos os arquivos somente leitura (proteção automática)**
    - Remove arquivos órfãos (que não existem mais no remoto)
    - Gera log em `EVIDENCIAS/metodo_sync_log.md`
 
