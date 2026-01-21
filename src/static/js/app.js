@@ -665,8 +665,15 @@ function displayChapterResults(data) {
                         <h3>Capítulo ${cap.numero}: ${cap.titulo}</h3>
                         <span class="chapter-meta">
                             ${(cap.palavras || 0) > 0 
-                                ? `Original - ${(cap.palavras || 0).toLocaleString()} palavras | Resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras | % resumo/original ${((cap.palavras_resumo / cap.palavras) * 100).toFixed(2).replace('.', ',')}%`
-                                : `Resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras`}
+                                ? (() => {
+                                    const palavrasOriginal = cap.palavras || 0;
+                                    const palavrasResumo = cap.palavras_resumo || 0;
+                                    const percentualReducao = palavrasOriginal > 0 
+                                        ? ((1 - (palavrasResumo / palavrasOriginal)) * 100).toFixed(1).replace('.', ',')
+                                        : '0,0';
+                                    return `original - ${palavrasOriginal.toLocaleString()} palavras | resumo - ${palavrasResumo.toLocaleString()} palavras | ${percentualReducao}% de redução (resumo/original)`;
+                                })()
+                                : `resumo - ${(cap.palavras_resumo || 0).toLocaleString()} palavras`}
                             ${cap.paginas && cap.paginas.length > 0 ? ` | Páginas: ${cap.paginas.join(', ')}` : ''}
                             ${addendumCount > 0 ? ` <span class="addendum-badge chapter-badge-tooltip" data-tooltip="Sistema aplicou reforço automático para garantir cobertura completa">📝 Addendum: ${addendumCount}</span>` : ''}
                             ${regenerationCount > 0 ? ` <span class="regeneration-badge chapter-badge-tooltip" data-tooltip="Número de tentativas até obter resumo válido">🔄 Regenerações: ${regenerationCount}</span>` : ''}
