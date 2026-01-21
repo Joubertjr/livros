@@ -7,3 +7,124 @@
 SEMPRE usar via terminal com cat e heredoc:
 cd /Users/joubertsouza/Documents/livros && cat > .cursorrules << 'CURSORRULES_EOF'
 [conteúdo completo do arquivo]
+CURSORRULES_EOF
+
+**Regra canônica:** 
+- SEMPRE usar cat > .cursorrules << 'CURSORRULES_EOF' via terminal
+- NUNCA usar search_replace neste arquivo (causa travamento)
+- NUNCA usar write tool neste arquivo (pode travar)
+- Este arquivo deve ser sempre reescrito completamente, nunca editado parcialmente
+
+---
+
+## PROJECT IDENTITY (IMMUTABLE)
+
+Project name: CoverageSummarizer
+Tagline: Summaries with guaranteed coverage and auditability.
+
+This system prioritizes coverage, auditability and deterministic guarantees
+over creativity or stylistic summarization.
+
+## PROJECT QUALITY RULES (CANONICAL)
+
+Este projeto é TDD-first e Clean-Code enforced.
+
+### Regras Obrigatórias
+
+O Cursor **NÃO PODE** finalizar nenhuma tarefa sem:
+
+- falar explicitamente de testes
+- falar explicitamente de qualidade
+- reportar refatorações
+- reportar melhorias de nomes
+- reportar clareza de código
+
+Regras obrigatórias:
+
+- TDD-first
+- Funções ≤50 linhas
+- Sem duplicação
+- Sem lógica implícita
+- Sem refatoração silenciosa
+- END-FIRST obrigatório
+
+### Checklist de Qualidade (Obrigatório em Toda Resposta)
+
+No final de qualquer tarefa, Cursor DEVE incluir:
+
+- Testes criados/alterados
+- Refatorações feitas
+- Nomes melhorados
+- pytest -q verde
+
+## Restrições Docker Obrigatórias
+
+- Todo código deve funcionar dentro do Docker
+- Nenhuma dependência pode ser instalada no host
+- `docker compose up --build` deve funcionar em máquina limpa
+- Sem Docker = execução inválida
+
+## Padrões de Código e Estrutura
+
+- Interface: CLI (MVP)
+- Entrada: PDF
+- Provider: OpenAI
+- Toda execução deve acontecer dentro do container Docker
+- Código deve estar em `src/`
+- Exportações em `volumes/`
+- Evidências em `EVIDENCIAS/`
+
+## Princípios de Desenvolvimento
+
+- END vem antes de HOW
+- Sem card = não existe trabalho
+- Sistema não depende de atenção, percepção ou metacognição humana
+- Pipeline determinístico: usuário escolhe resultado, não técnica
+- Quality Gate automático obrigatório
+
+## Estrutura de Pastas
+
+- `DEMANDAS/` - Documentação de demandas
+- `EVIDENCIAS/` - Evidências geradas automaticamente
+- `src/` - Código fonte
+- `volumes/` - Volume Docker para exportações (MD/PDF)
+- `planejamento/` - Planos de execução do projeto
+
+## Comandos Importantes
+
+- `docker compose up --build` - Sobe o sistema
+- `docker compose exec app make evidence` - Gera evidências
+- Todos os comandos devem funcionar dentro do container
+
+## Mandatory Gate Validation (Z0→Z11)
+
+- The canonical checklist is `CHECKLIST_Z_GATES.md`.
+- You MUST NOT declare progress without mapping it to a Gate (Z0..Z11).
+- For any Gate to be considered PASS, you MUST provide:
+ 1) `pytest -q` passing
+ 2) Direct evidence (tests + asserts + files)
+- If any checklist item fails, STOP and report as FAIL/BLOCKED.
+- Never call real OpenAI in tests. Always mock/stub.
+- If any schema/contract needs changes, STOP and propose a diff to `CHECKLIST_Z_GATES.md` before coding.
+
+### Reporting Format (mandatory)
+All progress messages MUST include:
+- Current Gate: Z{N}
+- Gate Status: PASS / FAIL / BLOCKED
+- Checklist validation: items marked [x]/[ ] with failure reason
+- Proof: commands run + key file paths produced
+
+## METODO/ Directory Synchronization (CRITICAL - FONTE DE VERDADE)
+
+**REGRA OBRIGATÓRIA:**
+- **Fonte de verdade:** `https://github.com/Joubertjr/endfirst-ecosystem` (repositório remoto)
+- **Pasta local:** `METODO/` (raiz do projeto)
+- **Quando o usuário pedir para atualizar `METODO/`, você DEVE:**
+  1. Executar `docker compose exec app make sync-metodo` (ou `python scripts/sync_metodo.py` no host)
+  2. NUNCA modificar arquivos em `METODO/` diretamente (eles vêm do repositório remoto)
+  3. NUNCA criar arquivos novos em `METODO/` sem sincronizar primeiro
+  4. Sempre verificar se há mudanças após sincronização e fazer commit se necessário
+- **Sincronização:** O script `scripts/sync_metodo.py` clona/atualiza o repositório remoto e sincroniza apenas arquivos que mudaram
+- **Log:** Toda sincronização gera log em `EVIDENCIAS/metodo_sync_log.md`
+- **Comando:** `docker compose exec app make sync-metodo` ou `python scripts/sync_metodo.py`
+- **Regra canônica:** "METODO/ é sincronizado do repositório remoto, não editado localmente"
