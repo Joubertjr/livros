@@ -15,3 +15,8 @@ sync-metodo:
 	@echo "Sincronizando pasta METODO/ do repositório remoto..."
 	@python scripts/sync_metodo.py
 	@echo "✅ Sincronização concluída!"
+
+protect-metodo:
+	@echo "Aplicando proteção somente leitura em METODO/..."
+	@bash scripts/protect_metodo.sh
+	@echo "✅ Proteção aplicada!"
