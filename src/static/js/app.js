@@ -621,15 +621,15 @@ function displayChapterResults(data) {
         toc.innerHTML = summaries.capitulos.map((cap, i) => {
             const palavrasOriginal = cap.palavras || 0;
             const palavrasResumo = cap.palavras_resumo || 0;
-            const porcentagem = palavrasOriginal > 0 
-                ? ((palavrasResumo / palavrasOriginal) * 100).toFixed(2).replace('.', ',')
-                : '0,00';
+            const percentualReducao = palavrasOriginal > 0 
+                ? ((1 - (palavrasResumo / palavrasOriginal)) * 100).toFixed(1).replace('.', ',')
+                : '0,0';
             
             // UX Rule: "Métrica correta mas semanticamente ambígua é FAIL de UX."
             // Quando palavrasOriginal é 0, não exibir métrica confusa
             const metricText = palavrasOriginal > 0 
-                ? `Original - ${palavrasOriginal.toLocaleString()} palavras | Resumo - ${palavrasResumo.toLocaleString()} palavras | % resumo/original ${porcentagem}%`
-                : `Resumo - ${palavrasResumo.toLocaleString()} palavras`;
+                ? `original - ${palavrasOriginal.toLocaleString()} palavras | resumo - ${palavrasResumo.toLocaleString()} palavras | ${percentualReducao}% de redução (resumo/original)`
+                : `resumo - ${palavrasResumo.toLocaleString()} palavras`;
             
             return `
             <a href="#chapter-${i}" class="chapter-link">
