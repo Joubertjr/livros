@@ -524,9 +524,11 @@ async def process_with_progress(
         metadata_collector = ProcessMetadataCollector()
         metadata_collector.start_process()
         
+        # F4: Passar session_id para permitir retomada de checkpoints
         summarizer = BookSummarizerRobust(
             evidencias_dir=str(evidencias_dir),
-            metadata_collector=metadata_collector
+            metadata_collector=metadata_collector,
+            session_id=session_id  # F4: Permitir retomada baseada em session_id
         )
 
         tracker.update_progress(session_id, "processing", 30, "Detectando capítulos...")

@@ -7,12 +7,18 @@ Orquestra pipeline completo:
 - Quality Gate (lendo só coverage_report.json)
 - Se FAIL → levanta exceção clara
 - Se PASS → retorna resultado final
+
+F4: Persistência progressiva e retomada segura
+- Carrega checkpoints conforme F3
+- Pula capítulos já processados
+- Cria checkpoints nos pontos definidos em F2
 """
 
 import asyncio
 import logging
 from typing import Dict, List, Optional
 from pathlib import Path
+from datetime import datetime
 
 from src.chapter_detector import ChapterDetector, Chapter
 from src.markdown_parser import MarkdownParser
@@ -20,6 +26,7 @@ from src.chapter_summarizer import ChapterSummarizer, ChapterSummary
 from src.evidence_generator_robust import EvidenceGeneratorRobust
 from src.quality_gate import QualityGate
 from src.exceptions import CoverageError
+from src.storage.checkpoint_manager import CheckpointManager
 # Importar generate_recall_set no nível do módulo para permitir mock
 from src.recall_set import generate_recall_set as _generate_recall_set
 
@@ -44,7 +51,8 @@ class BookSummarizerRobust:
         self,
         evidencias_dir: str = "EVIDENCIAS",
         use_chapters: bool = True,
-        metadata_collector=None
+        metadata_collector=None,
+        session_id: Optional[str] = None
     ):
         """
         Inicializa o summarizer robusto.
@@ -53,11 +61,13 @@ class BookSummarizerRobust:
             evidencias_dir: Diretório para salvar evidências
             use_chapters: Se True, detecta capítulos antes de processar
             metadata_collector: Coletor de metadados do processo (opcional)
+            session_id: ID da sessão para retomada (opcional)
         """
         self.evidencias_dir = Path(evidencias_dir)
         self.evidencias_dir.mkdir(parents=True, exist_ok=True)
         self.use_chapters = use_chapters
         self.metadata_collector = metadata_collector
+        self.session_id = session_id
         
         # Inicializar componentes
         self.markdown_parser = MarkdownParser()
@@ -65,10 +75,16 @@ class BookSummarizerRobust:
         self.chapter_summarizer = ChapterSummarizer(metadata_collector=metadata_collector)
         self.evidence_generator = EvidenceGeneratorRobust(output_dir=str(self.evidencias_dir))
         self.quality_gate = QualityGate()
+        
+        # F4: Inicializar gerenciador de checkpoints
+        self.checkpoint_manager = CheckpointManager()
+        
+        # F4: Metadados de processamento (inicializados na primeira execução)
+        self.process_metadata = None
     
     async def summarize_robust(self, text: str) -> Dict:
         """
-        Pipeline robusto completo (Gate Z7).
+        Pipeline robusto completo (Gate Z7) com persistência progressiva (F4).
         
         Args:
             text: Texto completo do livro
@@ -79,7 +95,35 @@ class BookSummarizerRobust:
         Raises:
             CoverageError: Se quality gate falhar (coverage < 100%)
         """
-        logger.info("🚀 Iniciando pipeline robusto (Gate Z7)")
+        logger.info("🚀 Iniciando pipeline robusto (Gate Z7) com persistência progressiva (F4)")
+        
+        # F4: Gerar session_id se não fornecido
+        if not self.session_id:
+            import uuid
+            self.session_id = str(uuid.uuid4())
+            logger.info(f"  → Session ID gerado: {self.session_id}")
+        else:
+            logger.info(f"  → Session ID fornecido: {self.session_id}")
+        
+        # F4: Carregar checkpoints válidos conforme F3
+        last_checkpoint = self.checkpoint_manager.find_last_valid_checkpoint(self.session_id)
+        processed_chapters = []
+        if last_checkpoint:
+            logger.info(f"  ✅ Checkpoint válido encontrado: capítulo {last_checkpoint.chapter_number}")
+            processed_chapters = last_checkpoint.metadata.get('capitulos_processados', [])
+            logger.info(f"  → Capítulos já processados: {processed_chapters}")
+            # Restaurar metadados de processamento
+            self.process_metadata = last_checkpoint.metadata.copy()
+        else:
+            logger.info(f"  ℹ️ Nenhum checkpoint válido encontrado, iniciando do zero")
+            # Inicializar metadados de processamento
+            self.process_metadata = {
+                'session_id': self.session_id,
+                'timestamp_inicio': datetime.now().isoformat(),
+                'capitulos_processados': [],
+                'chunks_processados_por_capitulo': {},
+                'total_chunks_por_capitulo': {}
+            }
         
         # 1. Detectar capítulos
         chapters = await self._detect_chapters(text)
@@ -90,6 +134,32 @@ class BookSummarizerRobust:
         all_extractions = {}
         
         for chapter in chapters:
+            # F4: Pular capítulos já processados conforme F3
+            if chapter.number in processed_chapters:
+                logger.info(f"  ⏭️ Capítulo {chapter.number} já processado, restaurando do checkpoint...")
+                # Carregar checkpoint do capítulo
+                checkpoint = self.checkpoint_manager.load_checkpoint(self.session_id, chapter.number)
+                if checkpoint:
+                    # Restaurar dados do capítulo do checkpoint
+                    chapter_data = {
+                        'chapter_number': checkpoint.chapter_number,
+                        'chapter_title': checkpoint.chapter_summary['titulo'],
+                        'summary_text': checkpoint.chapter_summary['resumo'],
+                        'summary_object': checkpoint.chapter_summary,
+                        'recall_set': checkpoint.coverage_report.get('recall_set', {}),
+                        'audit_result': checkpoint.coverage_report.get('audit_result', {}),
+                        'total_chunks': checkpoint.coverage_report.get('total_chunks', 0),
+                        'processed_chunks': checkpoint.coverage_report.get('processed_chunks', 0)
+                    }
+                    chapter_summaries.append(chapter_data)
+                    logger.info(f"  ✅ Capítulo {chapter.number} restaurado do checkpoint")
+                    continue
+                else:
+                    logger.warning(f"  ⚠️ Checkpoint do capítulo {chapter.number} não encontrado, reprocessando...")
+                    # Se checkpoint não encontrado, remover da lista e reprocessar
+                    processed_chapters.remove(chapter.number)
+            
+            logger.info(f"  📖 Processando Capítulo {chapter.number}: {chapter.title}")
             logger.info(f"  📖 Processando Capítulo {chapter.number}: {chapter.title}")
             
             # Processar capítulo e coletar dados do pipeline
@@ -116,6 +186,23 @@ class BookSummarizerRobust:
                 logger.warning(f"  ⚠️ pipeline_data['recall_set'] type: {type(pipeline_data.get('recall_set'))}")
                 # Tentar usar recall_set do summary se disponível
                 # Por enquanto, manter estrutura vazia
+            
+            # Construir coverage_report parcial conforme F2
+            coverage_report_partial = {
+                'chapter_number': chapter.number,
+                'chapter_title': chapter.title,
+                'total_chunks': pipeline_data.get('total_chunks', 0),
+                'processed_chunks': pipeline_data.get('processed_chunks', 0),
+                'chunk_coverage_percentage': (pipeline_data.get('processed_chunks', 0) / pipeline_data.get('total_chunks', 1)) * 100.0 if pipeline_data.get('total_chunks', 0) > 0 else 0.0,
+                'recall_set': recall_set_data,
+                'audit_result': pipeline_data.get('audit_result', {
+                    'passed': True,
+                    'regeneration_count': 0,
+                    'addendum_count': 0,
+                    'missing_markers': [],
+                    'invalid_chunks': []
+                })
+            }
             
             chapter_data = {
                 'chapter_number': summary.numero,
@@ -144,6 +231,30 @@ class BookSummarizerRobust:
                 'processed_chunks': pipeline_data.get('processed_chunks', 0)
             }
             chapter_summaries.append(chapter_data)
+            
+            # F4: Criar checkpoint após processamento completo do capítulo (F2)
+            # Checkpoint criado no ponto definido em F2: após processamento completo de cada capítulo
+            try:
+                # Atualizar metadados de processamento
+                self.process_metadata['capitulos_processados'] = list(set(self.process_metadata.get('capitulos_processados', []) + [chapter.number]))
+                self.process_metadata['chunks_processados_por_capitulo'][chapter.number] = pipeline_data.get('processed_chunks', 0)
+                self.process_metadata['total_chunks_por_capitulo'][chapter.number] = pipeline_data.get('total_chunks', 0)
+                self.process_metadata['timestamp_ultimo_checkpoint'] = datetime.now().isoformat()
+                
+                # Salvar checkpoint atomicamente conforme F3
+                checkpoint_path = self.checkpoint_manager.save_checkpoint(
+                    session_id=self.session_id,
+                    chapter_number=chapter.number,
+                    chapter_summary=chapter_data['summary_object'],
+                    coverage_report=coverage_report_partial,
+                    metadata=self.process_metadata
+                )
+                logger.info(f"  ✅ Checkpoint salvo: {checkpoint_path}")
+            except Exception as e:
+                logger.error(f"  ❌ Erro ao salvar checkpoint do capítulo {chapter.number}: {e}")
+                # Não falhar o processamento se checkpoint falhar, mas logar erro
+                import traceback
+                traceback.print_exc()
             
             # Coletar extrações
             all_extractions[f'chapter_{chapter.number}'] = pipeline_data.get('extractions', {})
