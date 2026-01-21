@@ -2,6 +2,8 @@
 
 **Propósito:** Este diretório contém arquivos de demanda organizados para auditoria externa e análise de conformidade com END-FIRST v2.
 
+**⚠️ IMPORTANTE:** Este diretório é **temporário** e usado apenas para transferência de arquivos para análise externa.
+
 **Data de criação:** 2026-01-21
 
 ---
@@ -9,10 +11,15 @@
 ## Estrutura
 
 - `INVENTARIO_DEMANDAS.md` - Listagem completa de todas as demandas do projeto
-- `DEMANDA-PROD-*.md` - Demandas de produto
-- `DEMANDA-METODO-*.md` - Demandas de método
-- `DEMANDA-UX-*.md` - Demandas de UX
-- `DEMANDA-001_*.md` - Correções/bugs
+- `DEMANDA-PROD-*.md` - Demandas de produto (cópias para auditoria)
+- `DEMANDA-METODO-*.md` - Demandas de método (cópias para auditoria)
+- `DEMANDA-UX-*.md` - Demandas de UX (cópias para auditoria)
+- `DEMANDA-001_*.md` - Correções/bugs (cópias para auditoria)
+- `AUDITORIA_ENDFIRST_V2.md` - Relatório de auditoria
+- `ORDENS_CEO_CURSOR.md` - Ordens do CEO
+- `APROVACAO_F1_PROD_004.md` - Aprovação formal (documento de decisão)
+
+**Nota:** Arquivos de execução de fases (F1, F2, etc.) devem estar em `EVIDENCIAS/produto/`, não em `trns/`.
 
 ---
 
