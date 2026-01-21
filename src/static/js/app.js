@@ -250,7 +250,10 @@ function connectProgressStream(sessionId) {
                     // Wait a bit to ensure backend finished saving the result
                     console.log('Waiting before fetching results...');
                     setTimeout(() => {
-                        fetchResults(sessionId);
+                        fetchResults(sessionId).catch(err => {
+                            console.error('Error in fetchResults after completion:', err);
+                            showError('Erro ao carregar resultados: ' + err.message);
+                        });
                     }, 500);
                 }
             }
