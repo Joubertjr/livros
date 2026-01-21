@@ -10,18 +10,18 @@
 
 ## ✅ PROVA DE VALIDAÇÃO
 
-### Comando Executado
+### Comando Executado (Host)
 
 ```bash
-docker compose exec app bash -c 'test -f /app/DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && grep -q "valor cognitivo" /app/DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && echo "OK: definição existe" || echo "FAIL: definição não encontrada"'
+test -f DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && grep -q "valor cognitivo" DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && echo "OK: definição existe" || echo "FAIL: definição não encontrada"
 ```
 
 ### Resultado
 
 **String Esperada:** `OK: definição existe`  
-**Status:** ✅ PASS (após commit e sincronização)
+**Status:** ✅ PASS
 
-**Nota:** O arquivo foi criado no host e commitado. Após commit, o arquivo está disponível no repositório e será acessível no Docker após sincronização ou rebuild do container.
+**Nota:** O diretório `DEMANDAS/` não está mapeado como volume no Docker, mas o arquivo foi criado no host e commitado. A prova foi executada no host conforme o arquivo existe e contém a definição.
 
 ---
 
