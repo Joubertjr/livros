@@ -80,11 +80,20 @@ async function viewSummary(summaryId) {
         
         const data = await response.json();
         
+        // Determinar status do coverage_report
+        let status = 'PASS';
+        if (data.summary.coverage_report) {
+            const report = data.summary.coverage_report;
+            if (report.passed === false || report.overall_coverage_percentage < 100.0) {
+                status = 'FAIL';
+            }
+        }
+        
         // Exibir resumo usando displayResults
         if (data.summary && data.summary.summaries) {
             displayResults({
                 session_id: data.summary.summary_id,
-                status: 'PASS', // Assumir PASS se não houver coverage_report
+                status: status,
                 errors: [],
                 exported_files: data.summary.exported_files || {},
                 coverage_report: data.summary.coverage_report,
@@ -93,7 +102,13 @@ async function viewSummary(summaryId) {
             });
             
             // Scroll para resultados
-            document.getElementById('chapter-results-section')?.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                const resultsSection = document.getElementById('chapter-results-section') || 
+                                     document.getElementById('results-section');
+                if (resultsSection) {
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 100);
         } else {
             alert('Resumo não encontrado ou formato inválido');
         }
