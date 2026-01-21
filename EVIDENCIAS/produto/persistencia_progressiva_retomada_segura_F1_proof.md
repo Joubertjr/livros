@@ -1,14 +1,29 @@
-# RELATÓRIO DE EXECUÇÃO F1 — DEMANDA-PROD-004
+# Evidência F1 — DEMANDA-PROD-004: PERSISTÊNCIA PROGRESSIVA E RETOMADA SEGURA
 
+**Data:** 2026-01-21  
+**Demanda:** DEMANDA-PROD-004_PERSISTENCIA_PROGRESSIVA_RETOMADA_SEGURA.md  
+**Planejamento:** planejamento/DEMANDA-PROD-004_PLAN.md  
 **Fase:** F1 — Definir "Valor Cognitivo Persistente"  
-**Data de Início:** 2026-01-21  
-**Data de Conclusão:** 2026-01-21  
-**Executor:** Cursor  
 **Status:** ✅ COMPLETA
 
 ---
 
-## ✅ CHECKLIST F1
+## ✅ PROVA DE VALIDAÇÃO
+
+### Comando Executado
+
+```bash
+test -f DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && grep -q "valor cognitivo" DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && echo "OK: definição existe" || echo "FAIL: definição não encontrada"
+```
+
+### Resultado
+
+**String Esperada:** `OK: definição existe`  
+**Status:** ✅ PASS
+
+---
+
+## 📋 CHECKLIST F1
 
 ### DONE WHEN
 
@@ -35,15 +50,11 @@
    - Critério binário definido
    - Exemplos práticos
 
-2. **`EVIDENCIAS/produto/F1_VALOR_COGNITIVO_PERSISTENTE_PROOF.md`**
-   - Evidência de validação
-   - Prova executada: `OK: definição existe`
-
-3. **`trns/F1_STATUS_PROD_004.md`**
-   - Status da fase F1
-
-4. **`trns/F1_RELATORIO_EXECUCAO.md`** (este arquivo)
-   - Relatório completo de execução
+2. **`EVIDENCIAS/produto/persistencia_progressiva_retomada_segura_F1_proof.md`** (este arquivo)
+   - Evidência consolidada de F1
+   - Prova de validação
+   - Relatório de execução
+   - Status da fase
 
 ---
 
@@ -89,20 +100,12 @@ A definição garante que:
 
 ---
 
-## ✅ PROVA DE VALIDAÇÃO
+## ✅ F1: COMPLETA
 
-**Comando:** `test -f DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && grep -q "valor cognitivo" DEMANDAS/DEMANDA-PROD-004_DEFINICAO_VALOR_COGNITIVO_PERSISTENTE.md && echo "OK: definição existe"`
-
-**Resultado:** `OK: definição existe` ✅
-
----
-
-## 📌 PRÓXIMA FASE
-
-**F2 — Definir Pontos Mínimos de Persistência Incremental**
+**Status:** ✅ F1 COMPLETA  
+**Próxima Fase:** F2 — Definir Pontos Mínimos de Persistência Incremental
 
 ---
 
-**F1 concluída:** 2026-01-21  
-**Próxima fase:** F2  
+**Evidência gerada:** 2026-01-21  
 **Governado por:** END-FIRST v2
