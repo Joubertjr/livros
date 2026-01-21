@@ -128,3 +128,35 @@ All progress messages MUST include:
 - **Log:** Toda sincronização gera log em `EVIDENCIAS/metodo_sync_log.md`
 - **Comando:** `docker compose exec app make sync-metodo` ou `python scripts/sync_metodo.py`
 - **Regra canônica:** "METODO/ é sincronizado do repositório remoto, não editado localmente"
+
+## REGRA DE OURO PARA EXECUÇÃO DE DEMANDAS (ORDEM DO CEO)
+
+**Fonte:** `trns/ORDENS_CEO_CURSOR.md` (ORDEM 4)
+
+> "Cursor: você não resolve 'todas as demandas'.
+> Você resolve uma demanda por vez,
+> somente se ela tiver END claro, classe definida e F-1 aprovado."
+
+### Aplicação Binária
+
+```
+SE demanda não tem END claro
+OU demanda não tem classe definida
+OU demanda não tem F-1 aprovado (se exigir F-1)
+ENTÃO EXECUÇÃO = BLOQUEADA
+```
+
+### Bloqueio Estrutural
+
+**❌ NÃO execute nenhuma DEMANDA-PROD enquanto não houver F-1 aprovado.**
+
+Esta regra é absoluta e não tem exceções.
+
+### Prioridade de Execução
+
+1. DEMANDA-PROD-004 (PRIORIDADE 1) - Criar F-1 primeiro
+2. Confirmar status de F-1 para todas as demandas PROD
+3. Só depois: ajustes de UX, refinamentos, otimizações
+
+**Violação desta regra = FAIL estrutural do projeto.**
+
