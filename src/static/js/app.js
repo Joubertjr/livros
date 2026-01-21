@@ -11,6 +11,7 @@ let progressUpdateTimer = null;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
+    loadHistory(); // F7: Carregar histórico ao inicializar
 });
 
 function setupEventListeners() {
@@ -255,6 +256,13 @@ function connectProgressStream(sessionId) {
                             showError('Erro ao carregar resultados: ' + err.message);
                         });
                     }, 500);
+                    
+                    // F7: Recarregar histórico após conclusão
+                    setTimeout(() => {
+                        if (typeof loadHistory === 'function') {
+                            loadHistory();
+                        }
+                    }, 2000);
                 }
             }
         } catch (e) {
