@@ -250,3 +250,19 @@ pytest src/tests/integration/ -v
 
 **Regra canônica:**
 > "Código sem teste é dívida técnica. Teste sem código é especificação executável."
+
+---
+
+## 📚 DEMANDAS RELACIONADAS
+
+**DEMANDA-METODO-005:** TDD Rigoroso e Bloqueio Estrutural para Prevenir Erros
+- Status: F-1 pendente aprovação
+- Path: `DEMANDAS/DEMANDA-METODO-005_TDD_RIGOROSO_BLOQUEIO_ESTRUTURAL.md`
+- Planejamento: `planejamento/DEMANDA-METODO-005_PLAN.md`
+
+**DEMANDA-PROD-003:** Persistência Confiável e Garantida de Dados
+- Status: F-1 pendente aprovação
+- Path: `DEMANDAS/DEMANDA-PROD-003_PERSISTENCIA_CONFIAVEL_GARANTIDA.md`
+- Planejamento: `planejamento/DEMANDA-PROD-003_PLAN.md`
+
+**Nota:** Ambas demandas seguem TDD rigoroso e END-FIRST v2. Aguardam aprovação de F-1 antes de execução.
