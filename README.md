@@ -32,6 +32,7 @@ CoverageSummarizer is a deterministic, evidence-first system that guarantees
 - `src/` - Código fonte
 - `volumes/` - Exportações (MD/PDF)
 - `planejamento/` - Planos de execução
+- `METODO/` - **Núcleo operacional ENDFIRST (sincronizado do repositório remoto)**
 
 ## Engineering Principles
 
@@ -81,6 +82,52 @@ PYEOF
 ## Comandos Úteis
 
 - `docker compose exec app make evidence` - Gera evidências de execução
+- `docker compose exec app make sync-metodo` - **Sincroniza pasta METODO/ do repositório remoto (FONTE DE VERDADE)**
+
+## ⚠️ REGRA CRÍTICA: Sincronização do Diretório METODO/
+
+**FONTE DE VERDADE:** `https://github.com/Joubertjr/endfirst-ecosystem`
+
+O diretório `METODO/` contém o **núcleo operacional do Pilar ENDFIRST** e é **sincronizado automaticamente** do repositório remoto `endfirst-ecosystem`.
+
+### 🔒 Regras Obrigatórias
+
+1. **NUNCA modifique arquivos em `METODO/` diretamente**
+   - Todos os arquivos vêm do repositório remoto
+   - Modificações locais serão sobrescritas na próxima sincronização
+
+2. **Sempre use sincronização para atualizar `METODO/`**
+   ```bash
+   # Dentro do Docker (recomendado)
+   docker compose exec app make sync-metodo
+   
+   # Ou no host
+   python scripts/sync_metodo.py
+   ```
+
+3. **O script de sincronização:**
+   - Clona/atualiza o repositório remoto temporariamente
+   - Compara arquivos usando hash SHA256
+   - Sincroniza apenas arquivos que mudaram
+   - Remove arquivos órfãos (que não existem mais no remoto)
+   - Gera log em `EVIDENCIAS/metodo_sync_log.md`
+
+4. **Após sincronização:**
+   - Verifique mudanças: `git status METODO/`
+   - Faça commit se necessário: `git add METODO/ && git commit -m "sync: atualiza METODO/ do repositório remoto"`
+
+### 📚 Documentação
+
+- **Script de sincronização:** `scripts/sync_metodo.py`
+- **Log de sincronizações:** `EVIDENCIAS/metodo_sync_log.md`
+- **Repositório fonte:** https://github.com/Joubertjr/endfirst-ecosystem
+- **Documentação do método:** `METODO/README.md`
+
+### ⚠️ Regra Canônica
+
+> **"METODO/ é sincronizado do repositório remoto, não editado localmente."**
+
+**Violação desta regra = FAIL estrutural do projeto.**
 
 ## Execução de Testes
 

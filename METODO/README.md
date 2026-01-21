@@ -193,6 +193,22 @@ Preencher seções sem saber, só para "completar".
 
 ---
 
+## 🔄 Sincronização com Repositório Remoto
+
+**⚠️ REGRA CRÍTICA:** Este diretório é **sincronizado automaticamente** do repositório remoto.
+
+- **Fonte de verdade:** `https://github.com/Joubertjr/endfirst-ecosystem`
+- **Pasta local:** `METODO/` (raiz do projeto)
+- **Sincronização:** Execute `docker compose exec app make sync-metodo` ou `python scripts/sync_metodo.py`
+- **Log:** Toda sincronização gera log em `EVIDENCIAS/metodo_sync_log.md`
+
+**Regra canônica:**
+> "METODO/ é sincronizado do repositório remoto, não editado localmente."
+
+**NUNCA modifique arquivos neste diretório diretamente.** Todas as modificações devem ser feitas no repositório `endfirst-ecosystem` e depois sincronizadas.
+
+---
+
 ## 📜 Declaração Final
 
 **Este diretório é a fonte soberana de verdade sobre o Pilar ENDFIRST.**
@@ -206,4 +222,5 @@ Se esse documento não responde, a resposta ainda não existe oficialmente.
 **Versão:** 1.0  
 **Data:** 7 de Janeiro de 2026  
 **Path Canônico:** `/METODO/README.md`  
-**Governado por:** `/METODO/PILAR_ENDFIRST.md`
+**Governado por:** `/METODO/PILAR_ENDFIRST.md`  
+**Fonte de verdade:** `https://github.com/Joubertjr/endfirst-ecosystem`
