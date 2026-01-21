@@ -1,0 +1,61 @@
+{
+  "summary_id": "test-timings-session",
+  "title": "Resumo de texto",
+  "created_at": "2026-01-21T03:03:55.136677",
+  "updated_at": "2026-01-21T03:03:55.136739",
+  "pipeline_type": "robust",
+  "pipeline_version": null,
+  "input_text": "Test content",
+  "input_file": null,
+  "input_hash": null,
+  "summary": "# Test Chapter\n\nTest summary\n\n",
+  "summaries": {
+    "estrutura": "capitulos",
+    "resumo_executivo": {
+      "medio": "Resumo executivo de 1 capítulos processados com pipeline robusto (100% coverage garantido)."
+    },
+    "capitulos": [
+      {
+        "numero": "1",
+        "titulo": "Test Chapter",
+        "resumo": "Test summary",
+        "palavras": 0,
+        "palavras_resumo": 2,
+        "paginas": [],
+        "pontos_chave": [],
+        "citacoes": [],
+        "exemplos": []
+      }
+    ]
+  },
+  "coverage_report": null,
+  "addendum_metrics": null,
+  "validation_report": null,
+  "validation": null,
+  "exported_files": {},
+  "referencias": null,
+  "tracker_info": null,
+  "total_words_input": 2,
+  "total_words_output": 5,
+  "processing_time": 0.803565263748169,
+  "process_metadata": {
+    "chapters": [],
+    "logs": [
+      {
+        "timestamp": "2026-01-21T03:03:54.835434",
+        "level": "INFO",
+        "chapter": null,
+        "message": "Processo de sumarização iniciado"
+      },
+      {
+        "timestamp": "2026-01-21T03:03:55.136540",
+        "level": "INFO",
+        "chapter": null,
+        "message": "Processo de sumarização concluído"
+      }
+    ],
+    "start_time": "2026-01-21T03:03:54.835427",
+    "end_time": "2026-01-21T03:03:55.136538",
+    "duration_seconds": 0.301111
+  }
+}

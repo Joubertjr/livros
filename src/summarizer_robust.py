@@ -121,6 +121,18 @@ class BookSummarizerRobust:
                 'chapter_number': summary.numero,
                 'chapter_title': chapter.title,
                 'summary_text': summary.resumo,
+                # Dados completos do ChapterSummary para persistência
+                'summary_object': {
+                    'numero': summary.numero,
+                    'titulo': summary.titulo,
+                    'palavras': summary.palavras,
+                    'palavras_resumo': summary.palavras_resumo,
+                    'paginas': summary.paginas,
+                    'resumo': summary.resumo,
+                    'pontos_chave': summary.pontos_chave,
+                    'citacoes': summary.citacoes,
+                    'exemplos': summary.exemplos
+                },
                 'recall_set': recall_set_data,
                 'audit_result': pipeline_data.get('audit_result', {
                     'passed': True,
@@ -159,17 +171,22 @@ class BookSummarizerRobust:
         logger.info("  ✅ Quality Gate passou!")
         
         # 5. Construir resultado final
+        # Incluir dados completos dos capítulos para persistência
         result = {
             'chapters': [
                 {
                     'number': cs['chapter_number'],
                     'title': cs['chapter_title'],
-                    'summary': cs['summary_text']
+                    'summary': cs['summary_text'],
+                    # Dados completos do ChapterSummary (se disponível)
+                    'summary_object': cs.get('summary_object')
                 }
                 for cs in chapter_summaries
             ],
             'total_chapters': len(chapter_summaries),
-            'evidence_files': evidence_files
+            'evidence_files': evidence_files,
+            # Manter chapter_summaries completo para uso na API
+            'chapter_summaries': chapter_summaries
         }
         
         return result

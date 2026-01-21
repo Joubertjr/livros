@@ -568,23 +568,39 @@ async def process_with_progress(
         }
         
         # Converter chapters do resultado para formato ChapterSummary
-        # O resultado do summarize_robust tem apenas dados básicos (number, title, summary)
-        # Mas o coverage_report tem todas as métricas detalhadas
+        # Usar dados completos do summary_object se disponível, senão usar dados básicos
         for ch in result.get('chapters', []):
-            summary_text = ch.get('summary', '')
-            palavras_resumo = len(summary_text.split())
-            
-            summaries['capitulos'].append({
-                'numero': ch.get('number', '?'),
-                'titulo': ch.get('title', 'Sem título'),
-                'resumo': summary_text,
-                'palavras': 0,  # Não disponível no resultado básico
-                'palavras_resumo': palavras_resumo,
-                'paginas': [],
-                'pontos_chave': [],  # Extrair do summary se necessário
-                'citacoes': [],
-                'exemplos': []
-            })
+            # Tentar usar summary_object completo primeiro
+            summary_obj = ch.get('summary_object')
+            if summary_obj:
+                # Dados completos disponíveis
+                summaries['capitulos'].append({
+                    'numero': summary_obj.get('numero', ch.get('number', '?')),
+                    'titulo': summary_obj.get('titulo', ch.get('title', 'Sem título')),
+                    'resumo': summary_obj.get('resumo', ch.get('summary', '')),
+                    'palavras': summary_obj.get('palavras', 0),
+                    'palavras_resumo': summary_obj.get('palavras_resumo', 0),
+                    'paginas': summary_obj.get('paginas', []),
+                    'pontos_chave': summary_obj.get('pontos_chave', []),
+                    'citacoes': summary_obj.get('citacoes', []),
+                    'exemplos': summary_obj.get('exemplos', [])
+                })
+            else:
+                # Fallback: usar dados básicos
+                summary_text = ch.get('summary', '')
+                palavras_resumo = len(summary_text.split())
+                
+                summaries['capitulos'].append({
+                    'numero': ch.get('number', '?'),
+                    'titulo': ch.get('title', 'Sem título'),
+                    'resumo': summary_text,
+                    'palavras': 0,  # Não disponível no resultado básico
+                    'palavras_resumo': palavras_resumo,
+                    'paginas': [],
+                    'pontos_chave': [],
+                    'citacoes': [],
+                    'exemplos': []
+                })
 
         # Stage 4: Exporting (95-98%)
         stage_start = time.time()

@@ -43,7 +43,7 @@ class SummaryStorage(BaseModel):
     
     # Output
     summary: Optional[str] = Field(None, description="Resumo final completo")
-    summaries: Optional[Dict[str, str]] = Field(None, description="Resumos por tipo (curto, medio, longo, bullets)")
+    summaries: Optional[Dict] = Field(None, description="Resumos estruturados (pode ser Dict[str, str] para formato simples ou Dict com estrutura 'capitulos' para formato completo)")
     
     # Metadados do processo
     coverage_report: Optional[Dict] = Field(None, description="Relatório de cobertura completo")
