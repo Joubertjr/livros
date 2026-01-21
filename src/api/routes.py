@@ -338,6 +338,50 @@ def _determine_status_from_coverage(coverage_report: Optional[dict]) -> Tuple[st
     return status, errors
 
 
+def _convert_chapter_to_summary_format(ch: dict) -> dict:
+    """
+    Converte capítulo do resultado para formato de summary.
+    
+    Clean Code: Extrai lógica de conversão para função separada.
+    
+    Args:
+        ch: Dicionário com dados do capítulo (pode ter summary_object ou dados básicos)
+        
+    Returns:
+        Dicionário no formato esperado para summaries['capitulos']
+    """
+    summary_obj = ch.get('summary_object')
+    if summary_obj:
+        # Dados completos disponíveis
+        return {
+            'numero': summary_obj.get('numero', ch.get('number', '?')),
+            'titulo': summary_obj.get('titulo', ch.get('title', 'Sem título')),
+            'resumo': summary_obj.get('resumo', ch.get('summary', '')),
+            'palavras': summary_obj.get('palavras', 0),
+            'palavras_resumo': summary_obj.get('palavras_resumo', 0),
+            'paginas': summary_obj.get('paginas', []),
+            'pontos_chave': summary_obj.get('pontos_chave', []),
+            'citacoes': summary_obj.get('citacoes', []),
+            'exemplos': summary_obj.get('exemplos', [])
+        }
+    else:
+        # Fallback: usar dados básicos
+        summary_text = ch.get('summary', '')
+        palavras_resumo = len(summary_text.split())
+        
+        return {
+            'numero': ch.get('number', '?'),
+            'titulo': ch.get('title', 'Sem título'),
+            'resumo': summary_text,
+            'palavras': 0,  # Não disponível no resultado básico
+            'palavras_resumo': palavras_resumo,
+            'paginas': [],
+            'pontos_chave': [],
+            'citacoes': [],
+            'exemplos': []
+        }
+
+
 def _build_result_contract(
     session_id: str,
     status: str,
@@ -570,37 +614,8 @@ async def process_with_progress(
         # Converter chapters do resultado para formato ChapterSummary
         # Usar dados completos do summary_object se disponível, senão usar dados básicos
         for ch in result.get('chapters', []):
-            # Tentar usar summary_object completo primeiro
-            summary_obj = ch.get('summary_object')
-            if summary_obj:
-                # Dados completos disponíveis
-                summaries['capitulos'].append({
-                    'numero': summary_obj.get('numero', ch.get('number', '?')),
-                    'titulo': summary_obj.get('titulo', ch.get('title', 'Sem título')),
-                    'resumo': summary_obj.get('resumo', ch.get('summary', '')),
-                    'palavras': summary_obj.get('palavras', 0),
-                    'palavras_resumo': summary_obj.get('palavras_resumo', 0),
-                    'paginas': summary_obj.get('paginas', []),
-                    'pontos_chave': summary_obj.get('pontos_chave', []),
-                    'citacoes': summary_obj.get('citacoes', []),
-                    'exemplos': summary_obj.get('exemplos', [])
-                })
-            else:
-                # Fallback: usar dados básicos
-                summary_text = ch.get('summary', '')
-                palavras_resumo = len(summary_text.split())
-                
-                summaries['capitulos'].append({
-                    'numero': ch.get('number', '?'),
-                    'titulo': ch.get('title', 'Sem título'),
-                    'resumo': summary_text,
-                    'palavras': 0,  # Não disponível no resultado básico
-                    'palavras_resumo': palavras_resumo,
-                    'paginas': [],
-                    'pontos_chave': [],
-                    'citacoes': [],
-                    'exemplos': []
-                })
+            capitulo_dict = _convert_chapter_to_summary_format(ch)
+            summaries['capitulos'].append(capitulo_dict)
 
         # Stage 4: Exporting (95-98%)
         stage_start = time.time()

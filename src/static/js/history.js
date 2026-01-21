@@ -1,6 +1,26 @@
 // History Management Functions
 // F7: Carregar histórico de resumos
 
+/**
+ * Determina status do resumo baseado no coverage_report.
+ * 
+ * Clean Code: Extrai lógica de determinação de status para função separada.
+ * 
+ * @param {Object|null} coverageReport - Relatório de cobertura
+ * @returns {string} - 'PASS' ou 'FAIL'
+ */
+function _determineStatusFromCoverage(coverageReport) {
+    if (!coverageReport) {
+        return 'PASS';  // Assumir PASS se não houver relatório
+    }
+    
+    if (coverageReport.passed === false || coverageReport.overall_coverage_percentage < 100.0) {
+        return 'FAIL';
+    }
+    
+    return 'PASS';
+}
+
 async function loadHistory() {
     try {
         const response = await fetch('/api/summaries');
@@ -81,13 +101,7 @@ async function viewSummary(summaryId) {
         const data = await response.json();
         
         // Determinar status do coverage_report
-        let status = 'PASS';
-        if (data.summary.coverage_report) {
-            const report = data.summary.coverage_report;
-            if (report.passed === false || report.overall_coverage_percentage < 100.0) {
-                status = 'FAIL';
-            }
-        }
+        const status = _determineStatusFromCoverage(data.summary.coverage_report);
         
         // Exibir resumo usando displayResults
         if (data.summary && data.summary.summaries) {

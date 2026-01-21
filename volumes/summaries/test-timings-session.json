@@ -1,8 +1,8 @@
 {
   "summary_id": "test-timings-session",
   "title": "Resumo de texto",
-  "created_at": "2026-01-21T03:07:38.713457",
-  "updated_at": "2026-01-21T03:07:38.713670",
+  "created_at": "2026-01-21T03:11:28.419626",
+  "updated_at": "2026-01-21T03:11:28.419817",
   "pipeline_type": "robust",
   "pipeline_version": null,
   "input_text": "Test content",
@@ -37,25 +37,25 @@
   "tracker_info": null,
   "total_words_input": 2,
   "total_words_output": 5,
-  "processing_time": 0.80987548828125,
+  "processing_time": 0.8090801239013672,
   "process_metadata": {
     "chapters": [],
     "logs": [
       {
-        "timestamp": "2026-01-21T03:07:38.409408",
+        "timestamp": "2026-01-21T03:11:28.114621",
         "level": "INFO",
         "chapter": null,
         "message": "Processo de sumarização iniciado"
       },
       {
-        "timestamp": "2026-01-21T03:07:38.712997",
+        "timestamp": "2026-01-21T03:11:28.418873",
         "level": "INFO",
         "chapter": null,
         "message": "Processo de sumarização concluído"
       }
     ],
-    "start_time": "2026-01-21T03:07:38.409395",
-    "end_time": "2026-01-21T03:07:38.712989",
-    "duration_seconds": 0.303594
+    "start_time": "2026-01-21T03:11:28.114549",
+    "end_time": "2026-01-21T03:11:28.418865",
+    "duration_seconds": 0.304316
   }
 }
