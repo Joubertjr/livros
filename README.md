@@ -1,226 +1,107 @@
-# CoverageSummarizer
+<!-- MARKER: README_START -->
 
-**Summaries with guaranteed coverage and auditability.**
+# O Fim da Força de Vontade: Por que Este Projeto Existe
 
-CoverageSummarizer is a deterministic, evidence-first system that guarantees
-100% coverage of critical knowledge or fails explicitly with audit proof.
+> **TL;DR:** Este repositório não é sobre um software que resume livros. É sobre um método de engenharia que corrige a falha fundamental de como humanos lidam com projetos de longo prazo. Se você já abandonou uma resolução de Ano Novo, este projeto é para você.
 
-## Pré-requisitos
+---
 
-- Docker
-- Docker Compose
+## 1. O Problema Humano: Por que Planos Lineares Falham
 
-## Instalação e Execução
+<!-- MARKER: SECTION_1_PSYCHOLOGY -->
 
-1. Copie o arquivo `.env.example` para `.env` e configure suas variáveis:
-   ```bash
-   cp .env.example .env
-   # Edite .env e adicione sua OPENAI_API_KEY
-   ```
+> **Conceito-Chave:** A maioria dos nossos objetivos falha não por falta de disciplina, mas porque usamos um modelo de planejamento linear que é frágil à incerteza.
 
-2. Execute o sistema:
-   ```bash
-   docker compose up --build
-   ```
+Usamos planejamento linear em um mundo não linear.  
+Resultado: abandono, frustração e sistemas frágeis.
 
-3. O sistema estará disponível via CLI dentro do container.
+As três forças que garantem a falha:
 
-## Estrutura do Projeto
+- **Planning Fallacy**
+- **Decision Fatigue**
+- **Implementation Gap**
 
-- `DEMANDAS/` - Documentação de demandas e critérios de aceitação
-- `EVIDENCIAS/` - Evidências geradas automaticamente
-- `src/` - Código fonte
-- `volumes/` - Exportações (MD/PDF)
-- `planejamento/` - Planos de execução
-- `METODO/` - **Núcleo operacional ENDFIRST (sincronizado do repositório remoto)**
+> **Frase Canônica:** "END-FIRST não é técnica; é correção de um erro humano."
 
-## Engineering Principles
+---
 
-CoverageSummarizer é um projeto **TDD-first** e **Clean-Code enforced**.
+## 2. A Correção Estrutural: O Modelo Mental END-FIRST
 
-Regras obrigatórias:
+<!-- MARKER: SECTION_2_METHOD -->
 
-- Nenhuma implementação sem testes
-- Teste falha antes da implementação (ou RED/xfail por design)
-- Funções pequenas (≤50 linhas)
-- Nomes explicam intenção
-- Nenhuma lógica implícita
-- Nenhuma duplicação
-- Nenhum TODO, HACK ou FIXME
-- Refatoração faz parte da tarefa
-- Critério de feito: Funciona + Passa testes + É legível
+END-FIRST troca checklist por destino.
 
-## Regras de Manutenção de Arquivos de Configuração
+Define-se primeiro o **Estado Final Esperado (END)**:
+- verificável  
+- imutável  
+- binário (PASS/FAIL)
 
-### Atualização do `.cursorrules`
+> **Frase Canônica:** "Código sem modelo mental é só execução cega."
 
-**⚠️ REGRA CANÔNICA:** O arquivo `.cursorrules` DEVE ser atualizado APENAS via terminal.
+---
 
-**Método obrigatório:**
-```bash
-cd /Users/joubertsouza/Documents/livros && cat > .cursorrules << 'CURSORRULES_EOF'
-[conteúdo completo do arquivo]
-CURSORRULES_EOF
-```
+## 3. A Tradução para Engenharia
 
-**Alternativa (se cat falhar):**
-```bash
-python3 << 'PYEOF'
-content = """[conteúdo completo do arquivo]"""
-with open('.cursorrules', 'w', encoding='utf-8') as f:
-    f.write(content)
-PYEOF
-```
+<!-- MARKER: SECTION_3_ENGINEERING -->
 
-**PROIBIDO:**
-- ❌ Usar `search_replace` tool (causa travamento)
-- ❌ Usar `write` tool (pode travar)
-- ❌ Editar parcialmente (sempre reescrever completamente)
+| Artefato | Função |
+|----------|--------|
+| F-1 | Contrato de execução |
+| Gates | Qualidade obrigatória |
+| Evidências | Auditoria |
+| PASS/FAIL | Fim da subjetividade |
 
-**Motivo:** Arquivos ocultos (`.cursorrules`) podem travar o Cursor quando editados com ferramentas de edição parcial. A reescrita completa via terminal é o método garantido.
+> **Frase Canônica:** "Qualidade não é expectativa. É condição."
 
-## Comandos Úteis
+---
 
-- `docker compose exec app make evidence` - Gera evidências de execução
-- `docker compose exec app make sync-metodo` - **Sincroniza pasta METODO/ do repositório remoto (FONTE DE VERDADE)**
-- `docker compose exec app make protect-metodo` - **Aplica proteção somente leitura em METODO/ (se necessário)**
+## 4. Implementação Viva: Projeto `livros`
 
-## ⚠️ REGRA CRÍTICA: Sincronização do Diretório METODO/
+<!-- MARKER: SECTION_4_CODE -->
 
-**FONTE DE VERDADE:** `https://github.com/Joubertjr/endfirst-ecosystem`
+Este repositório é a **primeira implementação real** do método END-FIRST.
 
-O diretório `METODO/` contém o **núcleo operacional do Pilar ENDFIRST** e é **sincronizado automaticamente** do repositório remoto `endfirst-ecosystem`.
+Código é consequência do método, não o oposto.
 
-### 🔒 Regras Obrigatórias
+Onde ver o método:
+- `/DEMANDAS/`
+- `/planejamento/`
+- `/EVIDENCIAS/`
 
-1. **NUNCA modifique arquivos em `METODO/` diretamente**
-   - Todos os arquivos vêm do repositório remoto
-   - **Arquivos são somente leitura (proteção automática)**
-   - Modificações locais serão sobrescritas na próxima sincronização
-   - **Você não pode salvar arquivos neste diretório** (somente leitura)
+---
 
-2. **Sempre use sincronização para atualizar `METODO/`**
-   ```bash
-   # Dentro do Docker (recomendado)
-   docker compose exec app make sync-metodo
-   
-   # Ou no host
-   python scripts/sync_metodo.py
-   ```
+## 5. Contrato de Contribuição
 
-3. **O script de sincronização:**
-   - Clona/atualiza o repositório remoto temporariamente
-   - Compara arquivos usando hash SHA256
-   - Sincroniza apenas arquivos que mudaram
-   - **Torna todos os arquivos somente leitura (proteção automática)**
-   - Remove arquivos órfãos (que não existem mais no remoto)
-   - Gera log em `EVIDENCIAS/metodo_sync_log.md`
+<!-- MARKER: SECTION_5_GOVERNANCE -->
 
-4. **Após sincronização:**
-   - Verifique mudanças: `git status METODO/`
-   - Faça commit se necessário: `git add METODO/ && git commit -m "sync: atualiza METODO/ do repositório remoto"`
+Regras:
+1. Toda mudança começa com uma DEMANDA  
+2. Toda demanda precisa de F-1  
+3. Sem F-1 → sem código  
 
-### 📚 Documentação
+> **Frase Canônica:** "README é contrato, não introdução."
 
-- **Script de sincronização:** `scripts/sync_metodo.py`
-- **Log de sincronizações:** `EVIDENCIAS/metodo_sync_log.md`
-- **Repositório fonte:** https://github.com/Joubertjr/endfirst-ecosystem
-- **Documentação do método:** `METODO/README.md`
+---
 
-### ⚠️ Regra Canônica
+## Posicionamento
 
-> **"METODO/ é sincronizado do repositório remoto, não editado localmente."**
+<!-- MARKER: SECTION_6_POSITIONING -->
 
-**Violação desta regra = FAIL estrutural do projeto.**
+É para você se:
+- valoriza robustez  
+- odeia retrabalho  
+- quer sistemas auditáveis  
 
-## Execução de Testes
+Não é para você se:
+- gosta de improviso  
+- aceita "depois a gente arruma"  
+- quer só features  
 
-Todos os testes devem ser executados dentro do container Docker:
+---
 
-```bash
-# Executar todos os testes
-docker compose exec app pytest -q
+<!-- MARKER: FOOTER -->
 
-# Executar testes específicos do Gate Z9
-docker compose exec app pytest -q \
-  src/tests/unit/test_api_schema_gate_z9.py \
-  src/tests/integration/test_api_gate_z9.py
-```
+*Artefato governado pela DEMANDA-METODO-008*  
+*Versão do método: END-FIRST v2.5*
 
-**Importante:** Testes não funcionam no ambiente local (dependências como `pydantic` e `fastapi` estão apenas no container).
-
-## Demanda
-
-Ver `DEMANDAS/DEMANDA-000_BOOK_SUMMARIZER.md` para especificação completa (documentação histórica).
-
-## Verificação de Integridade do Contrato
-
-O sistema usa artefatos canônicos para garantir integridade:
-
-- `CHECKLIST_Z_GATES.md` - Constituição do sistema (checklist imutável)
-- `gates_manifest.json` - Contrato executável (manifest)
-
-### Gerar Hash dos Artefatos
-
-```bash
-# Dentro do Docker (recomendado)
-docker compose exec app python3 scripts/generate_contract_hash.py
-
-# Ou localmente (se dependências estiverem instaladas)
-python3 scripts/generate_contract_hash.py
-```
-
-Isso gera `CONTRACT_HASH.txt` com hash SHA256 de ambos os artefatos.
-
-### Verificar Integridade
-
-Para verificar que os artefatos não foram alterados:
-
-```bash
-# Gerar hash atual (dentro do Docker)
-docker compose exec app python3 scripts/generate_contract_hash.py
-
-# Comparar com CONTRACT_HASH.txt
-cat CONTRACT_HASH.txt
-
-# Verificar manualmente (se disponível)
-sha256sum CHECKLIST_Z_GATES.md gates_manifest.json
-```
-
-Os hashes devem corresponder aos valores em `CONTRACT_HASH.txt`.
-
-### Política de Breaking Changes
-
-Breaking changes só são permitidos via criação de novo Gate (Gate Z-1, Z-2, etc.).
-
-Para criar novo gate:
-1. Adicionar entrada em `CHECKLIST_Z_GATES.md`
-2. Adicionar entrada em `gates_manifest.json`
-3. Implementar seguindo metodologia ENDFIRST
-4. Validar com `docker compose exec app pytest -q`
-5. Gerar novo hash: `docker compose exec app python3 scripts/generate_contract_hash.py`
-
-## Release v1.0
-
-Ver `RELEASE_v1.0.md` para detalhes da primeira release verificável.
-
-**Status:** Todos os Gates (Z0-Z9) PASS, 100% coverage validado com livro real.
-
-## Estado Atual do Repositório
-
-**Status:** ✅ **UNBLOCKED** (2026-01-18)
-
-**Validação:**
-```bash
-$ docker compose exec app pytest -q
-64 passed, 4 xfailed, 0 failed, 11 warnings in 0.56s
-```
-
-**Critério:** `0 failed` = suite 100% verde = repositório desbloqueado
-
-**Nota sobre Gate Z0:** Os 4 testes xfailed são testes RED (falham por design) do Gate Z0. Isso é comportamento esperado e documentado em `CHECKLIST_Z_GATES.md` e `gates_manifest.json` (`z0_mode: "XFAIL_BY_DESIGN"`). Não é workaround - é decisão arquitetural formalizada.
-
-**Artefatos de Validação:**
-- `gates_manifest.json`: `suite_status: "GREEN"`
-- `CONTRACT_HASH.txt`: Hash regenerado e validado
-- `EVIDENCIAS/gates_status.md`: Prova canônica registrada
+<!-- MARKER: README_END -->
